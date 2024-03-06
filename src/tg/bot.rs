@@ -132,11 +132,11 @@ pub enum State {
     RegistrationForTheGame,
 }
 
-//перечень команд обрабатываеые ботом
+//перечень команд обрабатываемые ботом
 #[derive(BotCommands, Clone)]
 #[command(rename_rule = "lowercase")]
 enum Command {
-    //комады которые поддерживает бот и которые будут отправлены юзеру при команде /help
+    //команды, которые поддерживает бот и которые будут отправлены юзеру при команде /help
     #[command(
         description = "Отмена (Также используется для прекращения отправки вопросов для игры)"
     )]
@@ -224,8 +224,8 @@ pub async fn run_bot() {
 }
 
 fn schema() -> UpdateHandler<Box<dyn Error + Send + Sync + 'static>> {
-    //эта функция регулирует переход бота из одного состояния диалога в другое
-    //а так же мереход между диалогом и колбэком
+    //эта функция регулирует переход бота из одного состояния диалога в другое,
+    //а так же переход между диалогом и колбэком
     use dptree::case;
 
     let command_handler = teloxide::filter_command::<Command, _>()
@@ -770,7 +770,7 @@ async fn start(bot: Bot, dialogue: MyDialogue, msg: Message, _: State) -> Handle
                     } else {
                         bot.send_message(msg.chat.id, "Выберите команду в 'Меню'.")
                             .await?;
-                        //если игрок зарегестирован переходим в состояние RegistrationComplete
+                        //если игрок зарегистрирован переходим в состояние RegistrationComplete
                         dialogue.update(State::RegistrationComplete).await?;
                     }
                 }
@@ -1009,7 +1009,7 @@ async fn receive_player_phone_number(
                         );
 
                         println!(
-                            "Плэйер {} {} {} {} {}",
+                            "Плейер {} {} {} {} {}",
                             player_real_first_name,
                             player_real_patronymic,
                             player_real_last_name,
@@ -1140,7 +1140,7 @@ async fn confirmation_of_registration(
     Ok(())
 }
 
-//функция ответа на собщение игроку после регистрации
+//функция ответа на сообщение игроку после регистрации
 pub async fn registration_complete(bot: Bot, msg: Message) -> HandlerResult {
     bot.send_message(msg.chat.id, "Выберите команду в 'Меню'")
         .await?;
@@ -1190,7 +1190,7 @@ pub async fn announce_game_bot(
                     Начало игры в {}.\n\
                     Место проведения игры: {}.\n\
                     Стоимость участия в игре: {} руб.\n\
-                    Стоимость присутсвия в зрительном зале: {} руб.\n\
+                    Стоимость присутствия в зрительном зале: {} руб.\n\
                     Оплата наличными или банковским переводом.\n\
                     Для регистрации нажмите /reggame",
                     game_day, game_time, game_location, price_player, price_spectator
@@ -1210,7 +1210,7 @@ pub async fn free_space_game_bot(game_id: i64) -> HandlerResult {
 
     let mut stmt = connection.prepare(
         "SELECT game_day, game_time, game_location, price_player FROM register_games WHERE id = ?")
-        .expect("не удалось выбрать даные из register_games в free_space_game_bot");
+        .expect("не удалось выбрать данные из register_games в free_space_game_bot");
     let game_data = stmt
         .query_map(params![game_id], |row| {
             Ok((
@@ -1275,7 +1275,7 @@ pub async fn del_game_bot(game_id: i64) -> HandlerResult {
 
     let mut stmt = connection
         .prepare("SELECT game_day, game_time, game_location FROM register_games WHERE id = ?")
-        .expect("не удалось выбрать даные из register_games в free_space_game_bot");
+        .expect("не удалось выбрать данные из register_games в free_space_game_bot");
     let game_data = stmt
         .query_map(params![game_id], |row| {
             Ok((
@@ -1288,7 +1288,7 @@ pub async fn del_game_bot(game_id: i64) -> HandlerResult {
     // Проход по вектору и извлечение значений
     for result in game_data {
         if let Ok((game_day, game_time)) = result {
-            // Получаем список всех зарегестрированных людей из таблицы reg_game_{}
+            // Получаем список всех зарегистрированных людей из таблицы reg_game_{}
             let all_ids: Result<Vec<i64>, _> = connection
                 .prepare(&format!(
                     "SELECT player_id FROM reg_game_{} WHERE player_id IS NOT NULL
@@ -1370,7 +1370,7 @@ async fn choice_registration_for_the_game(
                                         "Вы зарегистрированы на игру, \
                     которая состоится {} в {}.\nМесто проведения игры: {}.",
                                         game_day, game_time, game_location
-                                    ); //сообщение которое увидит игрок в телеге
+                                    ); //сообщение, которое увидит игрок в телеге
                                     bot.answer_callback_query(q.id).await?;
                                     if let Some(Message { id, chat, .. }) = q.message {
                                         bot.edit_message_text(chat.id, id, text).await?;
@@ -1400,7 +1400,7 @@ async fn choice_registration_for_the_game(
                                             }
                                         }
 
-                                        //удаляем все message_id из теблицы message_id_del
+                                        //удаляем все message_id из таблицы message_id_del
                                         connection.execute(
                                             "DELETE FROM message_id_del WHERE player_id = ?",
                                             params![player_id],
@@ -1414,8 +1414,8 @@ async fn choice_registration_for_the_game(
                                 Err(()) => {
                                     let text = format!(
                                         "Мне очень жаль, но игровые места на игру, \
-                    которая состоится {} в {} закончились. Вы зарегестрированы в резерв и в случае, если кто-то из \
-                    огроков откажется от учатия в игре, я приглашу Вас к участию. Так же Вы можете зарегестрироваться на эту игру зрителем. \
+                    которая состоится {} в {} закончились. Вы зарегистрированы в резерв и в случае, если кто-то из \
+                    игроков откажется от участия в игре, я приглашу Вас к участию. Так же Вы можете зарегистрироваться на эту игру зрителем. \
                     Надеюсь увидеть Вас на наших играх.",
                                         game_day, game_time
                                     );
@@ -1446,7 +1446,7 @@ async fn choice_registration_for_the_game(
                                             }
                                         }
 
-                                        //удаляем все message_id из теблицы message_id_del
+                                        //удаляем все message_id из таблицы message_id_del
                                         connection.execute(
                                             "DELETE FROM message_id_del WHERE player_id = ?",
                                             params![player_id],
@@ -1496,7 +1496,7 @@ async fn choice_registration_for_the_game(
                                             }
                                         }
 
-                                        //удаляем все message_id из теблицы message_id_del
+                                        //удаляем все message_id из таблицы message_id_del
                                         connection.execute(
                                             "DELETE FROM message_id_del WHERE player_id = ?",
                                             params![player_id],
@@ -1541,7 +1541,7 @@ async fn choice_registration_for_the_game(
                                             }
                                         }
 
-                                        //удаляем все message_id из теблицы message_id_del
+                                        //удаляем все message_id из таблицы message_id_del
                                         connection.execute(
                                             "DELETE FROM message_id_del WHERE player_id = ?",
                                             params![player_id],
@@ -1586,7 +1586,7 @@ async fn choice_registration_for_the_game(
                                             }
                                         }
 
-                                        //удаляем все message_id из теблицы message_id_del
+                                        //удаляем все message_id из таблицы message_id_del
                                         connection.execute(
                                             "DELETE FROM message_id_del WHERE player_id = ?",
                                             params![player_id],
@@ -1613,7 +1613,7 @@ async fn choice_registration_for_the_game(
                                 "Очень жаль, что Вы отказались от игры, \
                     которая состоится {} в {}.\nМесто проведения игры: {}.",
                                 game_day, game_time, game_location
-                            ); //сообщение которое увидит игрок в телеге
+                            ); //сообщение, которое увидит игрок в телеге
                             bot.answer_callback_query(q.id).await?;
                             if let Some(Message { id, chat, .. }) = q.message {
                                 bot.edit_message_text(chat.id, id, text).await?;
@@ -1639,7 +1639,7 @@ async fn choice_registration_for_the_game(
                                     }
                                 }
 
-                                //удаляем все message_id из теблицы message_id_del
+                                //удаляем все message_id из таблицы message_id_del
                                 connection
                                     .execute(
                                         "DELETE FROM message_id_del WHERE player_id = ?",
@@ -1671,7 +1671,7 @@ async fn choice_registration_for_the_game(
     Ok(())
 }
 
-//отправка сообщени для регистрации игрока на игру
+//отправка сообщения для регистрации игрока на игру
 pub async fn reg_game(bot: Bot, msg: Message, dialogue: MyDialogue) -> HandlerResult {
     let player_id = msg.chat.id.0; // Преобразование ChatId в i64
 
@@ -1706,8 +1706,8 @@ pub async fn reg_game(bot: Bot, msg: Message, dialogue: MyDialogue) -> HandlerRe
                 // Вектор пуст, отправляем сообщение об отсутствии анонсированных игр
                 bot.send_message(
                     msg.chat.id,
-                    "В данный момент отсутвуют анонсированные игры.\n\
-                Как только будеть объявлена регистрация на игру, я сообщу Вам об этом.",
+                    "В данный момент отсутствуют анонсированные игры.\n\
+                Как только будет объявлена регистрация на игру, я сообщу Вам об этом.",
                 )
                 .await?;
             } else {
@@ -1732,7 +1732,7 @@ pub async fn reg_game(bot: Bot, msg: Message, dialogue: MyDialogue) -> HandlerRe
             .prepare(&query_check_player_id)?
             .query_row(params![], |row| row.get(0));
 
-        //Формирование и отправка сообщений с кнопками на объявленные игры на которые игрок не зарегестрирован
+        //Формирование и отправка сообщений с кнопками на объявленные игры на которые игрок не зарегистрирован
         if result_check_player_id.is_err() {
             let query_available_games = "
         SELECT id, game_day, game_time, game_location
@@ -1784,7 +1784,7 @@ pub async fn reg_game(bot: Bot, msg: Message, dialogue: MyDialogue) -> HandlerRe
             }
             dialogue.update(State::RegistrationForTheGame).await?;
         } else {
-            //Формирование и отправка информационных сообщений с кнопкой отказа от игры на объявленные игры на которые игрок зарегестрирован
+            //Формирование и отправка информационных сообщений с кнопкой отказа от игры на объявленные игры на которые игрок зарегистрирован
             let query_not_available_games = "
         SELECT id, game_day, game_time, game_location
         FROM register_games
@@ -1814,7 +1814,7 @@ pub async fn reg_game(bot: Bot, msg: Message, dialogue: MyDialogue) -> HandlerRe
                     .send_message(
                         msg.chat.id,
                         format!(
-                            "Вы зарегестрированы на игру, которая состоится: {}\nв: {}.\nМесто проведения игры: {}",
+                            "Вы зарегистрированы на игру, которая состоится: {}\nв: {}.\nМесто проведения игры: {}",
                             game_day, game_time, game_location
                         ),
                     )
@@ -2154,7 +2154,7 @@ async fn receive_first_question_from_player(
         }
 
         _ => {
-            bot.send_message(msg.chat.id, "Отправляте только текст.")
+            bot.send_message(msg.chat.id, "Отправляйте только текст.")
                 .await?;
         }
     }
