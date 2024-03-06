@@ -1,0 +1,230 @@
+/*настройка элементов формы сайта*/
+#status {
+    width: 100%; /* Задает ширину элемента в 100% ширины родительского элемента */
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 24px;
+    position: absolute;
+    top: 0; /* Задаем верхнюю границу элемента в 0px */
+    left: 0;
+    right: 0; /* Задаем правую границу элемента в 0px */
+}
+
+body {
+    background-color: yellowgreen; /*цвет фона страницы*/
+}
+
+#status.pending::before {
+    content: "status: connected";
+}
+
+#status.pending {
+    background-color: yellow;
+    color: #000;
+}
+
+#status.connected::before {
+    content: "status: connected";
+}
+
+#status.connected {
+    background-color: green;
+    color: #fff;
+}
+
+#status.reconnecting::before {
+    content: "status: disconnecting";
+}
+
+#status.reconnecting {
+    background-color: red;
+    color: #fff;
+}
+
+
+input:focus {
+    outline: 0;
+    filter: brightness(1.05);
+}
+
+form input { /* Этот стиль будет применяться ко всем элементам input внутри формы, делая их блочными и добавляя отступ между ними. */
+    display: block; /* Отображение элементов как блочных */
+    margin-bottom: 10px; /* Верхний отступ между элементами */
+}
+
+form {
+    position: relative; /* Установите позицию относительно формы */
+}
+
+
+#announceGame {
+    width: 50%;
+    float: left;
+}
+
+#gamesList {
+    width: 50%;
+    float: right;
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+}
+
+.game-block {
+    margin-bottom: 50px; /* отступ между блоками с данными об играх */
+}
+
+
+/* Стилизация для элемента выбора даты */
+input[type="date"] {
+    padding: 10px 10px;
+    background-color: #fff;
+    color: #333;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 50%; /* Устанавливаем ширину в 25% (как у #message) */
+
+}
+
+/* Стилизация для элемента выбора времени */
+input[type="time"] {
+    padding: 10px 10px;
+    background-color: #fff;
+    color: #333;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 50%; /* Устанавливаем ширину в 25% (как у #message) */
+
+}
+
+/* Дополнительные стили для активного (фокусного) элемента */
+input[type="date"]:focus,
+input[type="time"]:focus {
+    outline: 0;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Стилизация для меток выбора даты и времени */
+label {
+    display: block;
+    margin-top: 5%;
+    font-weight: bold;
+}
+
+
+textarea#announce_message { /* поле "Место проведения игры" */
+    width: 50%; /* Устанавливаем фиксированную ширину в 25% поля */
+    background-color: white; /* цвет строки ввода */
+    color: black; /* Цвет текста (если нужно) */
+    height: 80px; /* Задайте желаемую высоту */
+    font-size: 20px; /* Задайте желаемый размер шрифта */
+    margin-top: 50px;
+    word-wrap: break-word; /* Перенос слов на новую строку */
+
+
+}
+
+
+button#logout {
+    background-color: orangered; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    top: 10px;
+    right: 10px;
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#logout:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+
+button#back_pacs_page {
+    background-color: blue; /* Установите цвет фона */
+    color: white; /* Установите белый цвет текста */
+    top: 10px;
+    right: 10px;
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#back_pacs_page:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+#city { /*стиль наименования города*/
+    color: black;
+    text-align: center; /* Выравнивание текста по центру */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    margin-top: 3%; /* Установите -15% высоты */
+    /* Другие стили, если нужны */
+}
+
+
+button#announce_button { /* кнопка "записать вопрос" */
+    background-color: red; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    bottom: 10px; /* Расположите кнопку внизу с отступом 10px */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#announce_button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+/* стили для правого блока пакетов вопросов */
+#pacsListNotDone {
+    float: left;
+    width: 50%; /* Измените значение, чтобы настроить ширину блока */
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 3%; /* Установите -15% высоты */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+    border: 2px solid #000; /* Добавьте рамку вокруг блока */
+}
+
+
+#gameList { /*стиль "Вопросы пакета"*/
+    width: 50%; /* Задайте ширину блока для отображения данных (50% экрана) */
+    float: right; /* Выравнивание блока справа */
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 13%; /* Установите -15% высоты */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+
+}
+
+button.attach_package-button { /* стили для кнопки "Пакет" */
+    color: #fff; /* Цвет текста кнопки */
+    background-color: #007bff; /* Фоновый цвет кнопки (голубой) */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Задаем отступы вокруг текста кнопки */
+    cursor: pointer; /* Делаем курсор при наведении */
+    border-radius: 5px; /* Закругляем углы кнопки */
+}
+
+/* Опциональные стили для изменения внешнего вида при наведении */
+button.attach_package-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+/* стили контекстного меню */
+.context-menu {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    z-index: 1000;
+    cursor: pointer; /* Добавляем указатель мыши, чтобы было видно, что это интерактивный элемент */
+}
+
+.context-menu div {
+    padding: 8px;
+}
+
+
+.context-menu div:hover {
+    background-color: slategrey;
+}

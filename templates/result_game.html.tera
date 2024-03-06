@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>result_game.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/game.css">
+    <script src="/js/prepare_question.js"></script>
+    <script src="/js/connection_script.js"></script>
+  </head>
+  <body>
+  <main>
+      <div id="sidebar">
+          <div id="status" class="pending"></div>
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <!-- Кнопка "Возврат к пакетам" -->
+          <form action="/prepare_questions_pac" method="post">
+              <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+          </form>
+
+          <!-- Строка "РЕЗУЛЬТАТЫ РАУНДА" -->
+          <h1>Результаты раунда:</h1>
+
+          <div id="resultsList">
+              <!-- Сюда будут вставлены данные о сыгравшей четвёрке игроков -->
+          </div>
+
+          <h2>Победитель игры:</h2>
+          <div id="finalList">
+              <!-- Сюда будут вставлены данные о сыгравшей четвёрке игроков -->
+           </div>
+
+          <!-- Строка "Отборочные раунды" -->
+          <h3>Результаты игры</h3>
+
+          <div id="qualifying_roundsList">
+              <!-- Сюда будут вставлены результаты игры -->
+          </div>
+
+          <!-- Кнопка "Закончить игру" -->
+          <form action="/end_game/{{game_id}}" method="post">
+              <button type="submit" id="continue_game">ЗАКОНЧИТЬ ИГРУ</button>
+          </form>
+
+          <script>
+              //Сыгравшая четвёрка
+              document.addEventListener('DOMContentLoaded', async function () {
+
+                  function fetchDataAndRender() {
+                      fetch('/get_players_round_result/{{game_id}}/{{tour}}/{{round}}')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { players } = data;
+                                  const playerListDiv = document.getElementById('resultsList');
+                                  playerListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                  // Установить стили для контейнера
+                                  playerListDiv.style.display = 'flex'; // Установите flex-контейнер
+                                  playerListDiv.style.flexDirection = 'row'; // Установите направление элементов в строку
+
+                                  // Отобразить данные игроков
+                                  players.forEach(player => {
+                                      const playerDiv = document.createElement('div'); // Используйте блочный элемент
+                                      playerDiv.className = 'player-block'; // Добавьте класс для стилизации расстояния между блоком игрок-ответ
+
+                                      // Создать элементы
+                                      const playerIdDiv = document.createElement('div');
+                                      playerIdDiv.innerHTML = `${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+                                      playerIdDiv.classList.add('player-name'); // Применить класс стиля
+
+                                      const scoreDiv = document.createElement('div');
+                                      scoreDiv.innerHTML = `${player.total_score}`;
+                                      scoreDiv.classList.add('score'); // Применить класс стиля для суммы баллов
+
+                                      playerDiv.appendChild(playerIdDiv);
+                                      playerDiv.appendChild(scoreDiv);
+                                      playerListDiv.appendChild(playerDiv);
+                                  });
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+                  fetchDataAndRender();
+              });
+
+              //Результат финала
+              document.addEventListener('DOMContentLoaded', async function () {
+                  function fetchDataAndRender() {
+                      fetch('/get_players_round_result/{{game_id}}/{{tour}}/{{round}}')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { players } = data;
+                                  const playerListDiv = document.getElementById('finalList');
+                                  playerListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                  // Установить стили для контейнера
+                                  playerListDiv.style.display = 'flex'; // Установите flex-контейнер
+                                  playerListDiv.style.flexDirection = 'row'; // Установите направление элементов в строку
+
+                                  // Найти игрока с максимальным количеством баллов
+                                  const maxScorePlayer = players.reduce((maxPlayer, player) => (player.total_score > maxPlayer.total_score ? player : maxPlayer), players[0]);
+
+                                  // Отобразить данные для игрока с максимальным количеством баллов
+                                  const playerDiv = document.createElement('div'); // Используйте блочный элемент
+                                  playerDiv.className = 'final_player-block'; // Добавьте класс для стилизации расстояния между блоком игрок-ответ
+
+                                  // Создать элементы
+                                  const placeDiv = document.createElement('div');
+                                  placeDiv.innerHTML = '1 место'; // Устанавливаем место для единственного игрока
+                                  placeDiv.classList.add('place'); // Применить класс стиля для места
+
+                                  const playerIdDiv = document.createElement('div');
+                                  playerIdDiv.innerHTML = `${maxScorePlayer.player_real_last_name} ${maxScorePlayer.player_real_first_name} ${maxScorePlayer.player_real_patronymic}`;
+                                  playerIdDiv.classList.add('player-name'); // Применить класс стиля
+
+                                  const scoreDiv = document.createElement('div');
+                                  scoreDiv.innerHTML = `${maxScorePlayer.total_score}`;
+                                  scoreDiv.classList.add('score'); // Применить класс стиля для суммы баллов
+
+                                  playerDiv.appendChild(placeDiv);
+                                  playerDiv.appendChild(playerIdDiv);
+                                  playerDiv.appendChild(scoreDiv);
+                                  playerListDiv.appendChild(playerDiv);
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+                  fetchDataAndRender();
+              });
+
+
+              //Результаты игры
+              document.addEventListener('DOMContentLoaded', async function () {
+
+                  function fetchDataAndRender() {
+                      fetch('/get_tour_result/{{game_id}}')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { players } = data;
+                                  const playerListDiv = document.getElementById('qualifying_roundsList');
+
+                                  // Сортируем массив игроков по убыванию итогового счета
+                                  players.sort((a, b) => b.total_score - a.total_score);
+
+                                  // Создаем таблицу
+                                  const table = document.createElement('table');
+                                  const headerRow = table.insertRow(0);
+
+                                  // Добавляем заголовки столбцов
+                                  const columns = ['Игрок', '1 тур', '2 тур', '3 тур', 'Финал', 'Итого'];
+                                  columns.forEach(columnTitle => {
+                                      const th = document.createElement('th');
+                                      th.textContent = columnTitle;
+                                      headerRow.appendChild(th);
+                                  });
+
+                                  // Заполняем таблицу данными
+                                  players.forEach(player => {
+                                      const row = table.insertRow(-1);
+
+                                      // Добавляем ячейки для каждого столбца
+                                      const playerNameCell = row.insertCell(0);
+                                      playerNameCell.textContent = `${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+
+                                      const score1Cell = row.insertCell(1);
+                                      score1Cell.textContent = player.score_tour_1;
+
+                                      const score2Cell = row.insertCell(2);
+                                      score2Cell.textContent = player.score_tour_2;
+
+                                      const score3Cell = row.insertCell(3);
+                                      score3Cell.textContent = player.score_tour_3;
+
+                                      const finalTourCell = row.insertCell(4);
+                                      finalTourCell.textContent = player.final_tour;
+
+                                      const totalScoreCell = row.insertCell(5);
+                                      totalScoreCell.textContent = player.total_score;
+                                  });
+
+                                  // Очищаем предыдущий контент и добавляем таблицу
+                                  playerListDiv.innerHTML = '';
+                                  playerListDiv.appendChild(table);
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+                  fetchDataAndRender();
+              });
+          </script>
+      </div>
+  </main>
+  </body>
+</html>

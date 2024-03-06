@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>prepare_game.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_prepare_game.css">
+    <script src="/js/script.js" charset="utf-8" defer></script>
+</head>
+<body>
+<main>
+    <div id="sidebar">
+        <div id="status" class="pending"></div>
+        <p id="city">Ваш город: {{ header }}</p>
+
+        <!-- Кнопка "Выход" -->
+        <form action="/logout" method="post">
+            <button type="submit" id="logout">Выход</button>
+        </form>
+
+        <!-- Кнопка "Домой" -->
+        <form action="/home_organiser" method="post">
+            <button type="submit" id="home_organiser">Домой</button>
+        </form>
+
+        <!-- Кнопка "Возврат к пакетам" -->
+        <form action="/prepare_questions_pac" method="post">
+            <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+        </form>
+    </div>
+
+
+    <!-- Левый блок с обьявленными играми-->
+    <div id="gamesList">
+        <!-- Сюда будут вставлены данные об объявленных играх -->
+    </div>
+
+    <!-- Правый блок с игрой для проведения-->
+    <div id="startgamesList">
+        <!-- Сюда будут вставлены данные для старта игры -->
+    </div>
+
+    <!-- элемент для отображения сообщения о загрузке -->
+    <div id="loadingMessage" class="loading-message">Загрузка...</div>
+
+    </form>
+
+    <div id="loadingSpinner"></div>
+
+</main>
+<script>
+    // Определение элемента сообщения о загрузке
+    const loadingMessage = document.getElementById('loadingMessage');
+
+    // Функция для отображения сообщения о загрузке
+    function showLoadingMessage() {
+        loadingMessage.style.display = 'block';
+    }
+
+    // Функция для скрытия сообщения о загрузке
+    function hideLoadingMessage() {
+        loadingMessage.style.display = 'none';
+    }
+
+    // Функция для форматирования даты в строку DD-MM-YYYY
+    function formatDate(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    }
+
+    // Функция для вычисления времени до начала игры в формате "дни часы:минуты:секунды"
+    function calculateTimeUntilStart(gameDay, gameTime, timeUntilStartElement) {
+        const updateInterval = 1000;  // Интервал обновления в миллисекундах
+        const oneDayInSeconds = 24 * 60 * 60;  // Количество секунд в одном дне
+
+// Функция для изменения стилей даты до начала игры в зависимости от времени до начала игры
+        function updateTimer() {
+            const currentDateTime = new Date();
+            const gameDateTime = new Date(`${gameDay}T${gameTime}`);
+            const timeUntilStartInSeconds = Math.floor((gameDateTime - currentDateTime) / 1000);
+
+            const days = Math.floor(timeUntilStartInSeconds / (24 * 60 * 60));
+            const hours = Math.floor((timeUntilStartInSeconds % (24 * 60 * 60)) / (60 * 60));
+            const minutes = Math.floor((timeUntilStartInSeconds % (60 * 60)) / 60);
+            const seconds = timeUntilStartInSeconds % 60;
+
+            const timeString = `Время до начала игры: ${days} дней ${hours}:${minutes}:${seconds}`;
+            timeUntilStartElement.innerHTML = `<strong>${timeString}</strong>`;
+
+            // Если количество дней равно 0, делаем строку красной
+            if (days === 0) {
+                timeUntilStartElement.style.color = 'darkviolet';
+            } else {
+
+                // Возвращаем обычный цвет
+                timeUntilStartElement.style.color = 'black';
+            }
+        }
+
+        // Вызываем функцию обновления сразу для отображения актуального времени
+        updateTimer();
+
+        // Обновляем таймер с заданным интервалом
+        setInterval(updateTimer, updateInterval);
+    }
+
+    async function fetchGameData(containerId, className) {
+        try {
+            showLoadingMessage();
+
+            // Загрузка данных об играх (левый блок)
+            const response = await fetch(`/announce_games_data`);
+            const data = await response.json();
+
+            const games = data.games;
+
+            if (games !== null && games.length > 0) {
+                // Преобразование строк дат и времени в объекты типа Date и сортировка по возрастанию
+                const sortedGames = games.sort((a, b) => {
+                    const dateA = new Date(`${a.game_day}T${a.game_time}`);
+                    const dateB = new Date(`${b.game_day}T${b.game_time}`);
+
+                    // Сначала сортируем по дате
+                    if (dateA > dateB) return 1;
+                    if (dateA < dateB) return -1;
+
+                    // Если даты совпадают, сортируем по времени
+                    return dateA.getTime() - dateB.getTime();
+                });
+
+                const currentDate = new Date();  // Получить текущую дату и время
+
+                const gameListDiv = document.getElementById('gamesList');
+                gameListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                // Отобразить отсортированные данные об играх
+                sortedGames.forEach(game => {
+                    // Рассчитать разницу во времени между текущим временем и временем начала игры в минутах
+                    const gameDateTime = new Date(`${game.game_day}T${game.game_time}`);
+                    const timeDifferenceInMinutes = Math.floor((gameDateTime - currentDate) / (1000 * 60));
+
+                    // Проверить, осталось ли до начала игры более 60 минут
+                    if (timeDifferenceInMinutes > 60) {
+                        const gameDiv = document.createElement('div');
+                        gameDiv.className = 'game-block'; // Добавьте класс для стилизации расстояния между блоками тем
+
+                        // Создать элемент с ID игры
+                        const IdElement = document.createElement('p');
+                        IdElement.innerHTML = `<strong>ID игы:</strong> ${game.game_id}`;
+                        IdElement.style.display = 'none'; // Скрыть с экрана
+
+                        // Создать элемент с датой игры
+                        const dateElement = document.createElement('p');
+                        const formattedDate = formatDate(new Date(`${game.game_day}T${game.game_time}`));
+                        dateElement.innerHTML = `<strong>Дата игры:</strong> ${formattedDate}`;
+
+                        // Создать элемент со временем игры
+                        const timeElement = document.createElement('p');
+                        timeElement.innerHTML = `<strong>Время начала игры:</strong> ${game.game_time}`;
+
+                        // Создать элемент с местом проведения игры
+                        const locationElement = document.createElement('p');
+                        locationElement.innerHTML = `<strong>Место проведения игры:</strong> ${game.game_location}`;
+
+                        // Создать элемент с названием пакета игры
+                        const questions_pacElement = document.createElement('p');
+
+                        // Добавим условие: если questions_pac не null, то отобразим его
+                        questions_pacElement.innerHTML = game.questions_pac !== null
+                            ? `<strong>Пакет вопросов:</strong> ${game.questions_pac}`
+                            : '';
+
+                        // Создать элемент с количеством зарегестрировавшихся игроков
+                        const players_countElement = document.createElement('p');
+                        players_countElement.innerHTML = `<strong>Зарегестрировано игроков:</strong> ${game.players_count}`;
+
+                        // Создать элемент с количеством зарегестрировавшихся зрителей
+                        const spectators_countElement = document.createElement('p');
+                        spectators_countElement.innerHTML = `<strong>Зарегестрировано зрителей:</strong> ${game.spectators_count}`;
+
+                        // Создать элемент с временем до начала игры
+                        const timeUntilStartElement = document.createElement('p');
+                        timeUntilStartElement.innerHTML = `<strong>Время до начала игры:</strong> ${calculateTimeUntilStart(game.game_day, game.game_time, timeUntilStartElement)} сек.`;
+
+                        // Создать кнопку "Список игроков"
+                        const listButton = document.createElement('button');
+                        listButton.innerText = 'Список игроков';
+                        listButton.className = 'list-button'; // Добавить класс list-button для стилизации кнопки;
+
+
+                        // Назначить обработчик событий для кнопки "Список игроков"
+                        listButton.onclick = function () {
+                            // Вызвать функцию player_list на сервере
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = `/player_list/${game.game_id}`;
+                            document.body.appendChild(form);
+                            form.submit();
+                        };
+
+
+                        // Создать кнопку "Удалить игру"
+                        const del_gameButton = document.createElement('button');
+                        del_gameButton.innerText = 'Удалить игру';
+                        del_gameButton.className = 'del_game-button'; // Добавить класс для стилизации кнопки;
+
+                        // Назначить обработчик событий для кнопки "Удалить игру"
+                        del_gameButton.onclick = function () {
+                            // Вызвать функцию на сервере
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = `/del_game/${game.game_id}`;
+                            document.body.appendChild(form);
+                            form.submit();
+                        };
+
+                        // Создать кнопку "Прикрепить пакет вопросов"
+                        const attach_packageButton = document.createElement('button');
+                        attach_packageButton.innerText = 'Пакет вопосов';
+                        attach_packageButton.className = 'attach_package-button'; // Добавить класс package-button чтобы менять стиль;
+
+                        //добавляем контекстное меню при нажатии на кнопку "Пакет"
+                        attach_packageButton.addEventListener('click', async function (event) {
+
+                            // Предотвращаем повторное нажатие кнопки
+                            attach_packageButton.disabled = true;
+
+                            // Предотвращаем повторное создание контекстного меню
+
+                            const existingContextMenu = document.querySelector('.context-menu');
+                            if (existingContextMenu) {
+                                existingContextMenu.remove();
+                            }
+
+                            // Получаем данные о пакетах вопросов с сервера
+                            const pacsData = await fetch('/pacs_data_done_not_game').then(response => response.json());
+
+                            // Создаем контекстное меню
+                            const contextMenu = document.createElement('div');
+                            contextMenu.className = 'context-menu';
+
+                            // Добавляем пункты контекстного меню на основе полученных данных о пакетах
+                            pacsData.questionspacs.forEach(pacName => {
+                                const pacItem = document.createElement('div');
+                                pacItem.innerText = pacName.package_name;
+
+                                // Используем data-* атрибут для хранения id
+                                pacItem.dataset.pacId = pacName.id;
+
+                                // Добавляем обработчик события для выполнения действия с выбранным пакетом
+                                pacItem.addEventListener('click', function (event) {
+                                    // Получаем id пакета вопросов из data-* атрибута
+                                    const pacId = event.currentTarget.dataset.pacId;
+                                    // Получаем id игры из data-* атрибута
+                                    const gameId = game.game_id
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = `/attach_questions_pac_to_game/${pacId}/${gameId}`;
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                });
+                                contextMenu.appendChild(pacItem);
+                            });
+
+                            // Позиционируем контекстное меню
+                            contextMenu.style.top = event.pageY + 'px';
+                            contextMenu.style.left = event.pageX + 'px';
+
+                            // Добавляем контекстное меню на страницу
+                            document.body.appendChild(contextMenu);
+
+                            // Запрещаем стандартное контекстное меню браузера
+                            event.preventDefault();
+
+                            // Добавляем обработчик для закрытия контекстного меню при клике вне его области
+                            function closeContextMenu(event) {
+                                if (!contextMenu.contains(event.target) && !attach_packageButton.contains(event.target)) {
+                                    contextMenu.remove();
+                                    document.removeEventListener('click', closeContextMenu);
+                                }
+                            }
+
+                            // Добавляем обработчик клика на document.body
+                            document.addEventListener('click', closeContextMenu);
+
+                            // Добавляем обработчик для предотвращения закрытия контекстного меню при клике на само меню
+                            contextMenu.addEventListener('click', function (event) {
+                                event.stopPropagation();
+                            });
+
+                            // Включаем кнопку после выполнения действий
+                            attach_packageButton.disabled = false;
+                        });
+
+                        // Добавить элементы в родительский div
+
+                        gameDiv.appendChild(IdElement);
+                        gameDiv.appendChild(dateElement);
+                        gameDiv.appendChild(timeElement);
+                        gameDiv.appendChild(locationElement);
+                        gameDiv.appendChild(questions_pacElement);
+                        gameDiv.appendChild(players_countElement);
+                        gameDiv.appendChild(spectators_countElement);
+                        gameDiv.appendChild(timeUntilStartElement);
+                        gameDiv.appendChild(listButton); // Добавить кнопку "Список игроков" после элемента с зарегистрировавшимися игроками
+                        gameDiv.appendChild(del_gameButton);
+
+                        // Добавить кнопку "Пакет" только если questions_pac равен null
+                        if (game.questions_pac === null) {
+                            gameDiv.appendChild(attach_packageButton);
+                        }
+
+                        // Добавить родительский div в список тем
+                        gameListDiv.appendChild(gameDiv);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching package data:', error);
+        } finally {
+            // Скрыть сообщение о загрузке после выполнения запроса
+            hideLoadingMessage();
+        }
+    }
+
+    async function fetchStartGameData() {
+        try {
+            // Показать сообщение о загрузке
+            showLoadingMessage();
+
+            // Загрузка данных об играх к проведению (правый блок)
+            const response = await fetch(`/announce_games_data`);
+            const data = await response.json();
+
+            const games = data.games;
+
+            if (games !== null && games.length > 0) {
+                const startgameListDiv = document.getElementById('startgamesList');
+                startgameListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                // Отобразить данные об играх без сортировки
+                games.forEach(game => {
+                    // Получить текущую дату и время
+                    const currentDate = new Date();
+                    const gameDateTime = new Date(`${game.game_day}T${game.game_time}`);
+
+                    // Рассчитать разницу во времени между текущим временем и временем начала игры в минутах
+                    const timeDifferenceInMinutes = Math.floor((gameDateTime - currentDate) / (1000 * 60));
+
+                    // Проверить, осталось ли до начала игры менее 60 минут
+                    if (timeDifferenceInMinutes <= 60) {
+                        const startgameDiv = document.createElement('div');
+                        startgameDiv.className = 'startgame-block'; // Добавьте класс для стилизации расстояния между блоками тем
+
+                        const IdElement = document.createElement('p');
+                        IdElement.innerHTML = `<strong>ID игры:</strong> ${game.game_id}`;
+                        IdElement.style.display = 'none'; // скрываем с экрана
+
+                        const dateElement = document.createElement('p');
+                        const formattedDate = formatDate(new Date(`${game.game_day}T${game.game_time}`));
+                        dateElement.innerHTML = `<strong>Дата игры:</strong> ${formattedDate}`;
+
+                        const questions_pacElement = document.createElement('p');
+                        if (game.questions_pac !== null) {
+                            questions_pacElement.innerHTML = `<strong>Пакет вопросов:</strong> ${game.questions_pac}`;
+                        } else {
+                            questions_pacElement.innerHTML = '<span style="color: red;">Срочно выбери пакет вопросов для игры!</span>';
+                        }
+
+                        const timeElement = document.createElement('p');
+                        timeElement.innerHTML = `<strong>Время начала игры:</strong> ${game.game_time}`;
+
+                        const timeUntilStartElement = document.createElement('p');
+                        timeUntilStartElement.innerHTML = `<strong>До начала игры осталось:</strong> ${calculateTimeUntilStart(game.game_day, game.game_time, timeUntilStartElement)} сек.`;
+
+                        const questions_pac_idElement = document.createElement('p');
+                        questions_pac_idElement.innerHTML = `<strong>ID пакета:</strong> ${game.questions_pac_id}`;
+                        questions_pac_idElement.style.display = 'none'; // скрываем с экрана
+
+                        // Создать элемент с количеством зарегестрировавшихся игроков
+                        const players_countElement = document.createElement('p');
+                        players_countElement.innerHTML = `<strong>Зарегестрировано игроков:</strong> ${game.players_count}`;
+
+                        // Создать элемент с количеством зарегестрировавшихся зрителей
+                        const spectators_countElement = document.createElement('p');
+                        spectators_countElement.innerHTML = `<strong>Зарегестрировано зрителей:</strong> ${game.spectators_count}`;
+
+                        const start_gameButton = document.createElement('button');
+                        start_gameButton.innerText = 'Начать игру';
+                        start_gameButton.className = 'start_game-button';
+
+                        // Создать кнопку "Список игроков"
+                        const listButton = document.createElement('button');
+                        listButton.innerText = 'Список игроков';
+                        listButton.className = 'list-button'; // Добавить класс list-button для стилизации кнопки;
+
+                        // Назначить обработчик событий для кнопки "Список игроков"
+                        listButton.onclick = function () {
+                            // Вызвать функцию player_list на сервере
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = `/player_list/${game.game_id}`;
+                            document.body.appendChild(form);
+                            form.submit();
+                        };
+
+                        // Создать кнопку "Удалить игру"
+                        const del_gameButton = document.createElement('button');
+                        del_gameButton.innerText = 'Удалить игру';
+                        del_gameButton.className = 'del_game-button'; // Добавить класс для стилизации кнопки;
+
+                        // Назначить обработчик событий для кнопки "Удалить игру"
+                        del_gameButton.onclick = function () {
+                            // Вызвать функцию на сервере
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = `/del_game/${game.game_id}`;
+                            document.body.appendChild(form);
+                            form.submit();
+                        };
+
+                        const attach_packageButton = document.createElement('button');
+                        attach_packageButton.innerText = 'Пакет вопросов';
+                        attach_packageButton.className = 'attach_package-button';
+
+                        attach_packageButton.addEventListener('click', async function (event) {
+                        attach_packageButton.disabled = true;
+                        const existingContextMenu = document.querySelector('.context-menu');
+                        if (existingContextMenu) {
+                            existingContextMenu.remove();
+                        }
+
+                        const pacsData = await fetch('/pacs_data_done_not_game').then(response => response.json());
+
+                        const contextMenu = document.createElement('div');
+                        contextMenu.className = 'context-menu';
+
+                        pacsData.questionspacs.forEach(pacName => {
+                            const pacItem = document.createElement('div');
+                            pacItem.innerText = pacName.package_name;
+                            pacItem.dataset.pacId = pacName.id;
+
+                            pacItem.addEventListener('click', function (event) {
+                                const pacId = event.currentTarget.dataset.pacId;
+                                const gameId = game.game_id
+                                const form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = `/attach_questions_pac_to_game/${pacId}/${gameId}`;
+                                document.body.appendChild(form);
+                                form.submit();
+                            });
+                            contextMenu.appendChild(pacItem);
+                        });
+
+                        contextMenu.style.top = event.pageY + 'px';
+                        contextMenu.style.left = event.pageX + 'px';
+
+                        document.body.appendChild(contextMenu);
+
+                        event.preventDefault();
+
+                        function closeContextMenu(event) {
+                            if (!contextMenu.contains(event.target) && !attach_packageButton.contains(event.target)) {
+                                contextMenu.remove();
+                                document.removeEventListener('click', closeContextMenu);
+                            }
+                        }
+
+                        document.addEventListener('click', closeContextMenu);
+
+                        contextMenu.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                        });
+
+                        attach_packageButton.disabled = false;
+                        });
+
+                        const loadingSpinner = document.getElementById('loadingSpinner'); // Добавленная строка
+
+                        start_gameButton.addEventListener('click', function () {
+                            // Проверка наличия ID пакета перед началом игры
+                            if (game.questions_pac_id !== null) {
+
+                                // Заблокировать все кнопки перед отправкой запроса
+                                disableAllButtons();
+
+                                // Показать анимацию загрузки
+                                loadingSpinner.style.display = 'block';
+
+                                const gameId = game.game_id;
+                                const questions_pac_id = game.questions_pac_id;
+                                const form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = `/start_game/${gameId}/${questions_pac_id}`;
+                                document.body.appendChild(form);
+                                form.submit();
+                            }else {
+                                // Вывести сообщение о том, что ID пакета равен null и начать игру невозможно
+                                alert('Не выбран пакет вопросов для игры. Начать игру невозможно.');
+                            }
+                        });
+
+
+                        // Функция для блокировки всех кнопок на странице
+                        function disableAllButtons() {
+                            const allButtons = document.querySelectorAll('button');
+                            allButtons.forEach(button => {
+                                button.disabled = true;
+                            });
+                        }
+
+                        startgameDiv.appendChild(IdElement);
+                        startgameDiv.appendChild(dateElement);
+                        startgameDiv.appendChild(timeElement);
+                        startgameDiv.appendChild(questions_pacElement);
+                        startgameDiv.appendChild(timeUntilStartElement);
+                        startgameDiv.appendChild(questions_pac_idElement);
+                        startgameDiv.appendChild(players_countElement);
+                        startgameDiv.appendChild(spectators_countElement);
+                        startgameDiv.appendChild(start_gameButton);
+                        startgameDiv.appendChild(listButton);
+                        startgameDiv.appendChild(del_gameButton);
+
+                        // Скрытие спиннера после выполнения действий
+                        loadingSpinner.style.display = 'none';
+
+                        if (game.questions_pac === null) {
+                            startgameDiv.appendChild(attach_packageButton);
+                        }
+
+                        startgameListDiv.appendChild(startgameDiv);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching package data:', error);
+        } finally {
+            hideLoadingMessage();
+        }
+    }
+
+    // Вызов функций при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchGameData('gamesList', 'game-block');
+        fetchStartGameData();
+    });
+</script>
+</body>
+</html>

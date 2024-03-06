@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>changing_round.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/game.css">
+    <script src="/js/prepare_question.js"></script>
+    <script src="/js/connection_script.js"></script>
+  </head>
+  <body>
+  <main>
+      <div id="sidebar">
+          <div id="status" class="pending"></div>
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <!-- Кнопка "Возврат к пакетам" -->
+          <form action="/prepare_questions_pac" method="post">
+              <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+          </form>
+
+
+          <!-- Строка "№ тура и № раунда" -->
+          <h1>{{round}} раунд {{tour}} тура окончен.</h1>
+          <h1>Результаты раунда:</h1>
+
+
+          <!-- Сюда будут вставлены данные о сыгравшей четвёрке игроков -->
+          <div id="resultsList">
+
+          </div>
+
+           <h2>Приглашается следующая четвёрка игроков:</h2>
+
+           <!-- Сюда будут вставлены данные приглашаемой четвёрке игроков -->
+          <div id="next_playersList">
+
+          </div>
+
+          <!-- Кнопка "Продолжить игру" -->
+          <form action="/start_game/{{game_id}}/{{questions_pac_id}}" method="post">
+              <button type="submit" id="continue_game">ПРОДОЛЖИТЬ ИГРУ</button>
+          </form>
+
+          <!-- Кнопка "Отменить последнее начисление баллов" -->
+          <form action="/cancellation_last_accrual_points/{{game_id}}/{{questions_pac_id}}" method="post">
+              <button type="submit" id="cancellation_last_accrual_points">Отменить последнее начисление баллов</button>
+          </form>
+
+          <script>
+
+              //Сыгравшая четвёрка
+              document.addEventListener('DOMContentLoaded', async function () {
+                  function fetchDataAndRender() {
+                      fetch('/get_players_round_result/{{game_id}}/{{tour}}/{{round}}')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { players } = data;
+                                  const playerListDiv = document.getElementById('resultsList');
+                                  playerListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                  // Установить стили для контейнера
+                                  playerListDiv.style.display = 'flex'; // Установите flex-контейнер
+                                  playerListDiv.style.flexDirection = 'row'; // Установите направление элементов в строку
+
+                                  // Отобразить данные игроков
+                                  players.forEach(player => {
+                                      const playerDiv = document.createElement('div'); // Используйте блочный элемент
+                                      playerDiv.className = 'player-block'; // Добавьте класс для стилизации расстояния между блоком игрок-ответ
+
+                                      // Создать элементы
+                                      const playerIdDiv = document.createElement('div');
+                                      playerIdDiv.innerHTML = `${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+                                      playerIdDiv.classList.add('player-name'); // Применить класс стиля
+
+                                      const scoreDiv = document.createElement('div');
+                                      scoreDiv.innerHTML = `${player.total_score}`;
+                                      scoreDiv.classList.add('score'); // Применить класс стиля для суммы баллов
+
+                                      playerDiv.appendChild(playerIdDiv);
+                                      playerDiv.appendChild(scoreDiv);
+                                      playerListDiv.appendChild(playerDiv);
+                                  });
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+                  fetchDataAndRender();
+              });
+
+              //Приглашаемая четвёрка
+              document.addEventListener('DOMContentLoaded', async function () {
+                  function fetchDataAndRender() {
+                      fetch('/get_players_game_data/{{game_id}}/{{tour}}/{{round}}')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { players } = data;
+                                  const playerListDiv = document.getElementById('next_playersList');
+                                  playerListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                  // Установить стили для контейнера
+                                  playerListDiv.style.display = 'flex'; // Установите flex-контейнер
+                                  playerListDiv.style.flexDirection = 'row'; // Установите направление элементов в строку
+
+                                  // Отобразить данные игроков
+                                  players.forEach(player => {
+                                      const playerDiv = document.createElement('div'); // Используйте блочный элемент
+                                      playerDiv.className = 'player-block'; // Добавьте класс для стилизации расстояния между блоком игрок-ответ
+
+                                      // Создать элементы
+                                      const playerIdDiv = document.createElement('div');
+                                      playerIdDiv.innerHTML = `${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+                                      playerIdDiv.classList.add('player-name'); // Применить класс стиля
+
+                                      const scoreDiv = document.createElement('div');
+                                      scoreDiv.innerHTML = `${player.total_score}`;
+                                      scoreDiv.classList.add('score'); // Применить класс стиля для суммы баллов
+
+                                      playerDiv.appendChild(playerIdDiv);
+                                      playerListDiv.appendChild(playerDiv);
+                                  });
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+                  fetchDataAndRender();
+              });
+          </script>
+      </div>
+  </main>
+  </body>
+</html>

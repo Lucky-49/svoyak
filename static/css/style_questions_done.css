@@ -1,0 +1,339 @@
+/*настройка элементов формы сайта*/
+#status {
+    width: 100%; /* Задает ширину элемента в 100% ширины родительского элемента */
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 24px;
+    position: absolute;
+    top: 0; /* Задаем верхнюю границу элемента в 0px */
+    left: 0;
+    right: 0; /* Задаем правую границу элемента в 0px */
+}
+
+body {
+  background-color: yellowgreen; /*цвет фона страницы*/
+}
+
+#status.pending::before {
+  content: "status: connected";
+}
+
+#status.pending {
+    background-color: yellow;
+    color: #000;
+}
+
+#status.connected::before {
+  content: "status: connected";
+}
+
+#status.connected {
+    background-color: green;
+    color: #fff;
+}
+
+#status.reconnecting::before {
+  content: "status: disconnecting";
+}
+
+#status.reconnecting {
+    background-color: red;
+    color: #fff;
+}
+
+
+input:focus {
+    outline: 0;
+    filter: brightness(1.05);
+}
+
+form input { /* Этот стиль будет применяться ко всем элементам input внутри формы, делая их блочными и добавляя отступ между ними. */
+    display: block; /* Отображение элементов как блочных */
+    margin-bottom: 10px; /* Верхний отступ между элементами */
+}
+
+form {
+    position: relative; /* Установите позицию относительно формы */
+}
+
+
+input#pac_name {
+   width: 50%; /* Устанавливаем фиксированную ширину в 25% */
+    background-color: white; /* цвет строки ввода */
+    color: black; /* Цвет текста (если нужно) */
+    height: 100px; /* Задайте желаемую высоту */
+    font-size: 30px; /* Задайте желаемый размер шрифта */
+    margin: 1% auto; /* Устанавливаем верхний отступ 15%, а боковые автоматически центрируют */
+}
+
+#header_pac_id { /* надпись id пакета вопросов */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    opacity: 1; /* Пример значения прозрачности (можете регулировать от 0 до 1) */
+    font-weight: bold;
+    margin: 1% auto;
+    display: none;/* срываем элемент от пользователя*/
+}
+
+#header_pac_name { /* надпись "Название пакета вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#header_topic_five_questions { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#header_question { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#header_answer { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+
+#header_price_question { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#text { /* надпись "Необходимое количество вопросов" */
+    font-size: 20px; /* Замените 30px на желаемый размер шрифта */
+    text-align: left; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#questions_count { /* надпись "Количество вопросов в пакете" */
+    font-size: 20px; /* Замените 30px на желаемый размер шрифта */
+    text-align: left; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+
+input#topic_questions { /* поле "Тема пятёрки вопросов" */
+    width: 50%; /* Устанавливаем фиксированную ширину в 25% */
+    background-color: white; /* цвет строки ввода */
+    color: black; /* Цвет текста (если нужно) */
+    height: 50px; /* Задайте желаемую высоту */
+    font-size: 30px; /* Задайте желаемый размер шрифта */
+}
+
+textarea#question { /* поле "вопрос" */
+    width: 50%; /* Устанавливаем фиксированную ширину в 25% */
+    background-color: white; /* цвет строки ввода */
+    color: black; /* Цвет текста (если нужно) */
+    height: 500px; /* Задайте желаемую высоту */
+    font-size: 30px; /* Задайте желаемый размер шрифта */
+    text-align: left; /* Выравнивание текста в левый верхний угол */
+    word-wrap: break-word; /* Перенос слов на новую строку */
+    resize: vertical;
+    cursor: text; /* Устанавливаем курсор в текстовое поле */
+    padding: 5px; /* Добавим небольшие отступы */
+    border: 1px solid #ccc; /* Добавим границу для лучшего визуального определения границ поля */
+}
+
+textarea#answer { /* поле "ответ" */
+    width: 50%; /* Устанавливаем фиксированную ширину в 25% */
+    background-color: white; /* цвет строки ввода */
+    color: black; /* Цвет текста (если нужно) */
+    height: 100px; /* Задайте желаемую высоту */
+    font-size: 30px; /* Задайте желаемый размер шрифта */
+    text-align: left; /* Выравнивание текста в левый верхний угол */
+    word-wrap: break-word; /* Перенос слов на новую строку */
+    resize: vertical;
+    cursor: text; /* Устанавливаем курсор в текстовое поле */
+    padding: 5px; /* Добавим небольшие отступы */
+    border: 1px solid #ccc; /* Добавим границу для лучшего визуального определения границ поля */
+}
+
+input#price_question { /* поле "цена вопроса" */
+    width: 50%; /* Устанавливаем фиксированную ширину в 25% */
+    background-color: white; /* цвет строки ввода */
+    color: black; /* Цвет текста (если нужно) */
+    height: 50px; /* Задайте желаемую высоту */
+    font-size: 30px; /* Задайте желаемый размер шрифта */
+}
+
+button#rec_question { /* кнопка "записать вопрос" */
+    background-color: red; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    bottom: 10px; /* Расположите кнопку внизу с отступом 10px */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+
+button#prepare_game { /* кнопка "объявить игру" */
+    background-color: red; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#prepare_game:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+button#logout { /* кнопка "выход" */
+    background-color: orangered; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+       margin-right: auto; /* Добавляем для выравнивания вправо */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#logout:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+button#back_pacs_page { /* кнопка "возврат к странице с пакетами" */
+    background-color: blue; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#back_pacs_page:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+
+#city { /*стиль наименования города*/
+  color: black;
+  text-align: center; /* Выравнивание текста по центру */
+  font-size: 24px; /* Размер шрифта (по вашему желанию) */
+   margin-top: 3%; /* Установите -15% высоты */
+  /* Другие стили, если нужны */
+}
+
+#questionsList { /*стиль "Вопросы пакета"*/
+    float: left;
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-right: 2%; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+}
+
+
+
+
+button.edit-button { /* стили для кнопки "Редактировать" */
+    color: #fff; /* Цвет текста кнопки */
+    background-color: #007bff; /* Фоновый цвет кнопки (голубой) */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Задаем отступы вокруг текста кнопки */
+    cursor: pointer; /* Делаем курсор при наведении */
+    border-radius: 5px; /* Закругляем углы кнопки */
+}
+
+/* Опциональные стили для изменения внешнего вида при наведении */
+button.edit-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+button.add_ques_in_topic-button { /* стили для кнопки "Добавить вопрос" */
+    color: #fff; /* Цвет текста кнопки */
+    background-color: #007bff; /* Фоновый цвет кнопки (голубой) */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Задаем отступы вокруг текста кнопки */
+    cursor: pointer; /* Делаем курсор при наведении */
+    border-radius: 5px; /* Закругляем углы кнопки */
+}
+
+/* Опциональные стили для изменения внешнего вида при наведении */
+button.add_ques_in_topic-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+
+
+/* Добавьте стиль для задания отступа между блоками данных на странице questions_layers*/
+.question-block {
+    margin-bottom: 20px; /* Примерный отступ между блоками, настройте по своему усмотрению */
+}
+
+button.delete-button { /* стили для кнопки "Добавить в пакет вопросов" */
+    color: #fff; /* Цвет текста кнопки */
+    background-color: red; /* Фоновый цвет кнопки (голубой) */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Задаем отступы вокруг текста кнопки */
+    cursor: pointer; /* Делаем курсор при наведении */
+    border-radius: 5px; /* Закругляем углы кнопки */
+}
+
+/* Опциональные стили для изменения внешнего вида при наведении */
+button.delete-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+button.add_questions_pac-button { /* стили для кнопки "Добавить в пакет вопросов" */
+    color: #fff; /* Цвет текста кнопки */
+    background-color: #007bff; /* Фоновый цвет кнопки (голубой) */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Задаем отступы вокруг текста кнопки */
+    cursor: pointer; /* Делаем курсор при наведении */
+    border-radius: 5px; /* Закругляем углы кнопки */
+}
+
+/* Опциональные стили для изменения внешнего вида при наведении */
+button.add_questions_pac-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+.context-menu {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    z-index: 1000;
+    cursor: pointer; /* Добавляем указатель мыши, чтобы было видно, что это интерактивный элемент */
+}
+
+.context-menu div {
+    padding: 8px;
+}
+
+
+.context-menu div:hover {
+    background-color: slategrey;
+}
+
+
+/* Стили для второго контекстного меню */
+.second-context-menu {
+    position: absolute;
+    background-color: #fff; /* Цвет фона */
+    border: 1px solid #ccc; /* Граница */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень */
+    padding: 8px; /* Внутренний отступ */
+    z-index: 1000; /* Выше по стеку Z-индекса, чтобы находиться поверх других элементов */
+}
+
+.second-context-menu div {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Плавный переход цвета фона */
+}
+
+.second-context-menu div:hover {
+    background-color: slategrey; /* Цвет фона при наведении курсора */
+}

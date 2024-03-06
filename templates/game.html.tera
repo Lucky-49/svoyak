@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>game.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/game.css">
+    <script src="/js/prepare_question.js"></script>
+    <script src="/js/connection_script.js"></script>
+  </head>
+  <body>
+  <main>
+      <div id="sidebar">
+          <div id="status" class="pending"></div>
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <div id="pacBloc">
+              <!-- "Строка НАЗВАНИЕ ПАКЕТА" -->
+              <p id="pac_name">Название пакета: {{pac_name}}</p>
+
+              <!-- "Строка НАЗВАНИЕ ПЯТЁРКИ ВОПРОСОВ ПАКЕТА" -->
+              <p id="topic_five_questions">Тема пятёрки вопросов: {{topic_five_questions}}</p>
+
+              <!-- "Строка ЦЕНА" -->
+              <p id="price_question">Цена вопроса: {{price_question}} баллов</p>
+
+              <!-- "Строка С вами играет" -->
+              <div id="player_question">
+     <!-- Содержимое будет добавлено имя игрока задавшего вопрос -->
+              </div>
+
+              <script>
+
+                  document.addEventListener('DOMContentLoaded', function () {
+                      var playerQuestionElement = document.getElementById('player_question');
+                      var lastName = '{{ last_name_player_question }}';
+                      var firstName = '{{ first_name_player_question }}';
+                      var patronymic = '{{ patronymic_player_question }}';
+                      var location = '{{ location_player_question }}';
+
+                      if (lastName) {
+                          playerQuestionElement.textContent = 'С вами играет: ' + lastName + ' ' + firstName + ' ' + patronymic + ', гор. ' + location;
+                      } else {
+                          playerQuestionElement.style.display = 'none';  // Скрыть элемент, если last_name_player_question не определен
+                      }
+                  });
+              </script>
+
+              <!-- "Строка ВОПРОС" -->
+              <p id="question">Вопрос: {{question}}</p>
+
+              <!-- "Строка ОТВЕТ" -->
+              <p id="answer">Ответ: {{answer}}</p>
+
+          </div>
+
+          <div id="schemaBloc">
+
+              <!-- "Строка ТУР" -->
+              <p id="tour">{{tour}} Тур</p>
+
+              <!-- "Строка РАУНД" -->
+              <p id="round">{{round}} Раунд</p>
+
+          </div>
+
+          <div id="playersList">
+              <!-- Сюда будут вставлены игроки -->
+          </div>
+
+          <!-- Кнопка "ИГРОКИ НЕ ЗНАЮТ ОТВЕТА" -->
+          <form action="/players_dont_know_answer/{{game_id}}/{{questions_pac_id}}/{{question_id}}/{{tour}}/{{round}}" method="post">
+              <button type="submit" id="players_dont_know_answer">Игроки не знают ответа</button>
+          </form>
+
+          <!-- Кнопка "Отменить последнее начисление баллов" -->
+          <form action="/cancellation_last_accrual_points/{{game_id}}/{{questions_pac_id}}" method="post">
+              <button type="submit" id="cancellation_last_accrual_points">Отменить последнее начисление баллов</button>
+          </form>
+
+          <script>
+
+              document.addEventListener('DOMContentLoaded', async function () {
+                  function fetchDataAndRender() {
+                      fetch('/get_players_game_data/{{game_id}}/{{tour}}/{{round}}')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { players } = data;
+                                  const playerListDiv = document.getElementById('playersList');
+                                  playerListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                  // Установить стили для контейнера
+                                  playerListDiv.style.display = 'flex'; // Установите flex-контейнер
+                                  playerListDiv.style.flexDirection = 'row'; // Установите направление элементов в строку
+
+                                  // Отобразить данные игроков
+                                  players.forEach(player => {
+                                      const playerDiv = document.createElement('div'); // Используйте блочный элемент
+                                      playerDiv.className = 'player-block'; // Добавьте класс для стилизации расстояния между блоком игрок-ответ
+
+                                      // Создать элементы
+                                      const playerIdDiv = document.createElement('div');
+                                      playerIdDiv.innerHTML = `${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+                                      playerIdDiv.classList.add('player-name'); // Применить класс стиля
+
+                                      const scoreDiv = document.createElement('div');
+                                      scoreDiv.innerHTML = `${player.total_score}`;
+                                      scoreDiv.classList.add('score'); // Применить класс стиля для суммы баллов
+
+                                      // Создать кнопку "Верно"
+                                      const correctButton = document.createElement('button');
+                                      correctButton.innerText = 'Верно';
+                                      correctButton.className = 'correct-button'; // Добавить класс
+
+                                      // Назначить обработчик событий для кнопки "Верно"
+                                      correctButton.onclick = function () {
+
+                                          // Вызвать функцию rec_correct_answer_player на сервере
+                                          const player_id = player.id;
+                                          const game_id = {{game_id}};
+                                          const form = document.createElement('form');
+                                          form.method = 'POST';
+                                          form.action = `/rec_correct_answer_player/${player.id}/${game_id}/{{questions_pac_id}}/{{question_id}}/{{price_question}}/{{tour}}/{{round}}`;
+                                          document.body.appendChild(form);
+                                          form.submit();
+                                      };
+
+                                      //создать кнопку "Не верно"
+                                      const incorrectButton = document.createElement('button');
+                                      incorrectButton.innerText = 'Не верно';
+                                      incorrectButton.className = 'incorrect-button';
+
+                                      // Назначить обработчик событий для кнопки "Не верно"
+                                      incorrectButton.onclick = function () {
+                                          // Вызвать функцию rec_correct_answer_player на сервере
+                                          const player_id = player.id;
+                                          const game_id = {{game_id}};
+                                          const form = document.createElement('form');
+                                          form.method = 'POST';
+                                          form.action = `/rec_incorrect_answer_player/${player.id}/${game_id}/{{questions_pac_id}}/{{question_id}}/{{price_question}}/{{tour}}/{{round}}`;
+                                          document.body.appendChild(form);
+                                          form.submit();
+                                      };
+
+                                      playerDiv.appendChild(playerIdDiv);
+                                      playerDiv.appendChild(scoreDiv);
+                                      playerDiv.appendChild(correctButton);
+                                      playerDiv.appendChild(incorrectButton);
+                                      playerListDiv.appendChild(playerDiv);
+                                  });
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+                  fetchDataAndRender();
+              });
+          </script>
+      </div>
+  </main>
+  </body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>player_list.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/game.css">
+    <script src="/js/prepare_question.js"></script>
+    <script src="/js/connection_script.js"></script>
+  </head>
+  <body>
+  <main>
+      <div id="sidebar">
+          <div id="status" class="pending"></div>
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <!-- Кнопка "Провести игру" -->
+          <form action="/navigate_prepare_game" method="get" >
+              <button type="submit" id="navigate_prepare_game">Возврат к странице с играми</button>
+          </form>
+
+
+          <!-- "Строка ID ИГРЫ" -->
+          <p id="game_id" style="display: none;>ID игры: {{game_id}}</p>
+
+          <h3>Участники</h3>
+
+          <div id="reg_playersList">
+          <!-- Сюда будут вставлены игроки -->
+      </div>
+
+      <!-- Строка "Резервные участники" -->
+      <h3>Резерв игроков</h3>
+
+      <div id="reg_reserve_playersList">
+          <!-- Сюда будут вставлены игроки -->
+      </div>
+
+      <!-- Строка "Зарегестрированные зрители" -->
+      <h3>Зрители</h3>
+
+      <div id="reg_spectatorsList">
+          <!-- Сюда будут вставлены зрители -->
+      </div>
+
+      <script>
+          //игроки
+          document.addEventListener('DOMContentLoaded', async function () {
+              // Функция для получения данных с сервера и отображения на странице
+              function fetchDataAndRender() {
+                  // Замените URL на ваш реальный путь к серверу
+                  fetch('/get_player_list/{{game_id}}')
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data !== null) {
+                              const { players } = data;
+                              const playerListDiv = document.getElementById('reg_playersList');
+
+                              // Очищаем предыдущий контент
+                              playerListDiv.innerHTML = '';
+
+                              // Создаем контейнер для участников
+                              const playersContainer = document.createElement('div');
+
+                              // Отобразить данные игроков
+                              players.forEach(player => {
+                                  const playerDiv = document.createElement('div');
+                                  playerDiv.className = 'player_list-block';
+
+                                  // Создать элементы для отображения данных игрока
+                                  const playerNameDiv = document.createElement('div');
+                                  playerNameDiv.innerHTML = `<strong>ФИО:</strong> ${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+
+                                  const phoneNumberDiv = document.createElement('div');
+                                  phoneNumberDiv.innerHTML = `<strong>Телефон:</strong> ${player.player_real_phone_number}`;
+
+                                  // Создать кнопку "Исключить"
+                                  const excludeButton = document.createElement('button');
+                                  excludeButton.innerText = 'Исключить из игры';
+                                  excludeButton.className = 'exclude_from_game-button'; // Добавить класс для button
+
+                                  // Назначить обработчик событий для кнопки "Исключить"
+
+                                  excludeButton.onclick = function () {
+                                      // Вызвать функцию на сервере
+                                      const form = document.createElement('form');
+                                      form.method = 'POST';
+                                      form.action = `/exclude_from_game/{{game_id}}/${player.player_id}`;
+                                      document.body.appendChild(form);
+                                      form.submit();
+                                  };
+
+                                  // Добавляем блок игрока в контейнер для участников
+                                  playerDiv.appendChild(playerNameDiv);
+                                  playerDiv.appendChild(phoneNumberDiv);
+                                  playerDiv.appendChild(excludeButton);
+                                  playersContainer.appendChild(playerDiv);
+                              });
+
+                              // Добавляем контейнер для участников на страницу
+                              playerListDiv.appendChild(playersContainer);
+                          } else {
+                              console.error('Received null data from the server.');
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error fetching player data:', error);
+                      });
+              }
+
+              // Вызываем функцию для получения данных и отображения на странице
+             fetchDataAndRender();
+          });
+
+          //резервные игроки
+          document.addEventListener('DOMContentLoaded', async function () {
+              // Функция для получения данных с сервера и отображения на странице
+              function fetchDataAndRender() {
+                  // Замените URL на ваш реальный путь к серверу
+                  fetch('/get_reserve_player_list/{{game_id}}')
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data !== null) {
+                              const { players } = data;
+                              const playerListDiv = document.getElementById('reg_reserve_playersList');
+
+                              // Очищаем предыдущий контент
+                              playerListDiv.innerHTML = '';
+
+                              // Создаем контейнер для участников
+                              const playersContainer = document.createElement('div');
+
+                              // Отобразить данные игроков
+                              players.forEach(player => {
+                                  const playerDiv = document.createElement('div');
+                                  playerDiv.className = 'reserve_player_list-block';
+
+                                  // Создать элементы для отображения данных игрока
+                                  const playerNameDiv = document.createElement('div');
+                                  playerNameDiv.innerHTML = `<strong>ФИО:</strong> ${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+
+                                  const phoneNumberDiv = document.createElement('div');
+                                  phoneNumberDiv.innerHTML = `<strong>Телефон:</strong> ${player.player_real_phone_number}`;
+
+                                  // Добавляем блок игрока в контейнер для участников
+                                  playerDiv.appendChild(playerNameDiv);
+                                  playerDiv.appendChild(phoneNumberDiv);
+                                  playersContainer.appendChild(playerDiv);
+                              });
+
+                              // Добавляем контейнер для участников на страницу
+                              playerListDiv.appendChild(playersContainer);
+                          } else {
+                              console.error('Received null data from the server.');
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error fetching player data:', error);
+                      });
+              }
+
+              // Вызываем функцию для получения данных и отображения на странице
+              fetchDataAndRender();
+          });
+
+          //зрители
+          document.addEventListener('DOMContentLoaded', async function () {
+              // Функция для получения данных с сервера и отображения на странице
+              function fetchDataAndRender() {
+                  // Замените URL на ваш реальный путь к серверу
+                  fetch('/get_spectator_list/{{game_id}}')
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data !== null) {
+                              const { players } = data;
+                              const playerListDiv = document.getElementById('reg_spectatorsList');
+
+                              // Очищаем предыдущий контент
+                              playerListDiv.innerHTML = '';
+
+                              // Создаем контейнер для участников
+                              const playersContainer = document.createElement('div');
+
+                              // Отобразить данные игроков
+                              players.forEach(player => {
+                                  const playerDiv = document.createElement('div');
+                                  playerDiv.className = 'spectator_list-block';
+
+                                  // Создать элементы для отображения данных игрока
+                                  const playerNameDiv = document.createElement('div');
+                                  playerNameDiv.innerHTML = `<strong>ФИО:</strong> ${player.player_real_last_name} ${player.player_real_first_name} ${player.player_real_patronymic}`;
+
+                                  const phoneNumberDiv = document.createElement('div');
+                                  phoneNumberDiv.innerHTML = `<strong>Телефон:</strong> ${player.player_real_phone_number}`;
+
+                                  // Добавляем блок игрока в контейнер для участников
+                                  playerDiv.appendChild(playerNameDiv);
+                                  playerDiv.appendChild(phoneNumberDiv);
+                                  playersContainer.appendChild(playerDiv);
+                              });
+
+                              // Добавляем контейнер для участников на страницу
+                              playerListDiv.appendChild(playersContainer);
+                          } else {
+                              console.error('Received null data from the server.');
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error fetching player data:', error);
+                      });
+              }
+
+              // Вызываем функцию для получения данных и отображения на странице
+              fetchDataAndRender();
+          });
+
+      </script>
+      </div>
+  </main>
+  </body>
+</html>

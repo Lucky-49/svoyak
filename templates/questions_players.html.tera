@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>questions_players.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_questions_done.css">
+    <script src="/js/prepare_question.js"></script>
+    <script src="/js/connection_script.js"></script>
+  </head>
+  <body>
+  <main>
+      <div id="sidebar">
+          <div id="status" class="pending"></div>
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <!-- Кнопка "Возврат к пакетам" -->
+          <form action="/prepare_questions_pac" method="post">
+              <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+          </form>
+
+          <!-- Сюда будут вставлены данные о вопросах -->
+          <div id="questionsList">
+
+          </div>
+
+          <script>
+              document.addEventListener('DOMContentLoaded', async function () {
+                  function fetchDataAndRender() {
+                      fetch('/questions_players_data')
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data !== null) {
+                                  const { questions } = data;
+                                  const questionListDiv = document.getElementById('questionsList');
+                                  questionListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                  // Отобразить данные о вопросах игроков
+                                  questions.forEach(question => {
+                                  // Проверка наличия package_id
+                                      if (question.package_id === null) {
+                                      const questionDiv = document.createElement('div'); // Используйте блочный элемент
+                                      questionDiv.className = 'question-block'; // Добавьте класс для стилизации расстояния между блоком игрок-ответ
+
+                                      // Создать элементы вопроса (примерные данные)
+                                      const playerIdDiv = document.createElement('div');
+                                      playerIdDiv.innerHTML = `<strong>Игрок:</strong> ${question.player_real_last_name} ${question.player_real_first_name} ${question.player_real_patronymic}`;
+
+                                      const topicDiv = document.createElement('div');
+                                      //если игрок не указал тему вопроса (player_topic_five_questions=null), то строка не отображается на странице
+                                      topicDiv.innerHTML = question.player_topic_five_questions !== null ? `<strong>Тема:</strong> ${question.player_topic_five_questions}` : '';
+
+                                      const questionTextDiv = document.createElement('div');
+                                      questionTextDiv.innerHTML = `<strong>Вопрос:</strong> ${question.player_question}`;
+
+                                      const answerDiv = document.createElement('div');
+                                      answerDiv.innerHTML = `<strong>Ответ:</strong> ${question.player_answer_question}`;
+
+                                      const questionIdDiv = document.createElement('div');
+                                      questionIdDiv.innerHTML = `<strong>ID вопроса:</strong> ${question.id}`;
+                                      questionIdDiv.style.display = 'none'; // Скрыть с экрана
+
+                                      const packageIdDiv = document.createElement('div');
+                                      packageIdDiv.innerHTML = `<strong>Вопрос добавлен в package_id:</strong> ${question.package_id}`;
+                                      packageIdDiv.style.display = 'none'; // Скрыть с экрана
+
+                                      // создать кнопку "Добавить в пакет вопросов"
+                                      const add_questions_pacButton = document.createElement('button');
+                                      add_questions_pacButton.innerText = 'Добавить в пакет вопросов';
+                                      add_questions_pacButton.className = 'add_questions_pac-button';
+
+                                       // Создать кнопку "Удалить"
+                                      const deleteButton = document.createElement('button');
+                                      deleteButton.innerText = 'Удалить';
+                                      deleteButton.className = 'delete-button'; // Добавить класс
+                                      // Назначить обработчик событий для кнопки "Удалить"
+                                      deleteButton.onclick = function () {
+
+                                      // Вызвать функцию del_player_question на сервере
+                                      const player_question_id = question.id;
+                                      const form = document.createElement('form');
+                                      form.method = 'GET';
+                                      form.action = `/del_player_question/${player_question_id}`;
+                                      document.body.appendChild(form);
+                                      form.submit();
+                                      };
+
+
+                                      add_questions_pacButton.addEventListener('click', async function (event) {
+
+                                          // Предотвращаем повторное создание контекстного меню
+                                          const existingContextMenu = document.querySelector('.context-menu');
+                                          if (existingContextMenu) {
+                                              existingContextMenu.remove();
+                                          }
+
+                                          // Создаем контекстное меню
+                                          const contextMenu = document.createElement('div');
+                                          contextMenu.className = 'context-menu';
+
+                                          // Добавляем пункт "создать новый пакет"
+                                          const createNewPacItem = document.createElement('div');
+                                          createNewPacItem.innerText = 'Создать новый пакет вопросов';
+
+                                          // Добавляем обработчик события для создания нового пакета
+                                          createNewPacItem.onclick = function () {
+                                              const player_question_id = question.id;
+                                              const form = document.createElement('form');
+                                              form.method = 'POST';
+                                              form.action = `/create_questions_pac_context/${player_question_id}`;
+                                              document.body.appendChild(form);
+                                              form.submit();
+                                          };
+
+                                          //добавляем "Создать новый пакет вопросов" в первое контекстное меню
+                                          contextMenu.appendChild(createNewPacItem);
+
+                                          // Получаем данные о пакетах вопросов с сервера
+                                          const pacsData = await fetch('/pacs_data_context_menu').then(response => response.json());
+
+                                          // Добавляем пункты контекстного меню на основе полученных данных о пакетах
+                                          pacsData.pacs_names.forEach(pacName => {
+                                              const pacItem = document.createElement('div');
+                                              pacItem.innerText = pacName.name;
+
+                                              // Используем data-* атрибут для хранения id
+                                              pacItem.dataset.pacId = pacName.id;
+
+                                              // Добавляем обработчик события для выполнения действия с выбранным пакетом
+                                              pacItem.addEventListener('click', function (event) {
+                                                  // Получаем id пакета вопросов из data-* атрибута
+                                                  const pacId = event.currentTarget.dataset.pacId;
+
+                                                  // Вызываем второе контекстное меню и передаем id пакета и id вопроса
+                                                  showSecondContextMenu(event, pacId, question.id);
+                                              });
+
+                                              contextMenu.appendChild(pacItem);
+                                          });
+
+                                          // Позиционируем контекстное меню
+                                          contextMenu.style.top = event.pageY  + 'px';
+                                          contextMenu.style.left = event.pageX  + 'px';
+
+                                          // Добавляем контекстное меню на страницу
+                                          document.body.appendChild(contextMenu);
+
+                                          // Запрещаем стандартное контекстное меню браузера
+                                          event.preventDefault();
+
+                                          // Добавляем обработчик для закрытия контекстного меню при клике вне его области
+                                          function closeContextMenu(event) {
+                                              if (!contextMenu.contains(event.target) && !add_questions_pacButton.contains(event.target)) {
+                                                  contextMenu.remove();
+                                                  document.removeEventListener('click', closeContextMenu);
+                                              }
+                                          }
+
+                                          // Добавляем обработчик клика на document.body
+                                          document.addEventListener('click', closeContextMenu);
+
+                                          // Добавляем обработчик для предотвращения закрытия контекстного меню при клике на само меню
+                                          contextMenu.addEventListener('click', function (event) {
+                                              event.stopPropagation();
+                                          });
+                                      });
+
+                                      questionDiv.appendChild(playerIdDiv);
+                                      questionDiv.appendChild(topicDiv);
+                                      questionDiv.appendChild(questionTextDiv);
+                                      questionDiv.appendChild(answerDiv);
+                                      questionDiv.appendChild(questionIdDiv);
+                                      questionDiv.appendChild(packageIdDiv);
+                                      questionDiv.appendChild(deleteButton);
+                                      questionDiv.appendChild(add_questions_pacButton);
+                                      questionListDiv.prepend(questionDiv);
+                                      }
+                                  });
+                              } else {
+                                  console.error('Received null data from the server.');
+                              }
+                          })
+                          .catch(error => {
+                              console.error('Error fetching questions data:', error);
+                          });
+                  }
+
+                  // Функция для отображения второго контекстного меню
+                  async function showSecondContextMenu(event, pacId, questionId) {
+                      // Предотвращаем повторное создание контекстного меню
+                      const existingContextMenu = document.querySelector('.second-context-menu');
+                      if (existingContextMenu) {
+                          existingContextMenu.remove();
+                      }
+
+                      // Создаем второе контекстное меню
+                      const secondContextMenu = document.createElement('div');
+                      secondContextMenu.className = 'second-context-menu';
+
+                      // Добавляем пункт "создать новую тему вопросов"
+                      const createNewTopicItem = document.createElement('div');
+                      createNewTopicItem.innerText = 'Создать новую тему вопросов';
+
+                      // Добавляем обработчик события для создания новой пятёрки вопросов
+                      createNewTopicItem.onclick = function () {
+                          const questions_pac_id = pacId;
+                          const player_question_id = questionId;
+                          const form = document.createElement('form');
+                          form.method = 'POST';
+                          form.action = `/create_topic_five_questions_context/${questions_pac_id}/${player_question_id}`;
+                          document.body.appendChild(form);
+                          form.submit();
+                      };
+
+                      //добавляем "Создать новый пакет вопросов" во второе контекстное меню
+                      secondContextMenu.appendChild(createNewTopicItem);
+
+                      // Получаем данные о темах пятёрок вопросов для выбранного пакета
+                      const topicsData = await fetch(`/topics_data_context_menu/${pacId}`).then(response => response.json());
+
+                      // Добавляем пункты второго контекстного меню на основе полученных данных о темах
+                      topicsData.topics_names.forEach(topicName => {
+                          const topicItem = document.createElement('div');
+                          topicItem.innerText = topicName.name;
+
+                          // Добавьте обработчик события при нажатии на выбранную тему
+                          topicItem.onclick = function () {
+                              const topic_five_questions = topicName.name;
+                              const form = document.createElement('form');
+                              form.method = 'POST';
+                              form.action = `/add_in_topic_question_player/${pacId}/${topic_five_questions}/${questionId}`;
+                              document.body.appendChild(form);
+                              form.submit();
+                          };
+                          secondContextMenu.appendChild(topicItem);
+                      });
+
+                      // Позиционируем второе контекстное меню рядом с курсором
+                      secondContextMenu.style.top = event.pageY  + 'px';
+                      secondContextMenu.style.left = event.pageX  + 'px';
+
+                      // Добавляем второе контекстное меню на страницу
+                      document.body.appendChild(secondContextMenu);
+
+                      // Добавляем обработчик для закрытия второго контекстного меню при клике вне его области
+                      function closeSecondContextMenu(event) {
+                          if (!secondContextMenu.contains(event.target)) {
+                              secondContextMenu.remove();
+                              document.removeEventListener('click', closeSecondContextMenu);
+                          }
+                      }
+
+                      // Добавляем обработчик клика на document.body
+                      document.addEventListener('click', closeSecondContextMenu);
+
+                      // Добавляем обработчик для предотвращения закрытия второго контекстного меню при клике на само меню
+                      secondContextMenu.addEventListener('click', function (event) {
+                          event.stopPropagation();
+                      });
+                  }
+                  fetchDataAndRender();
+                  setInterval(fetchDataAndRender, 5000);
+              });
+          </script>
+      </div>
+  </main>
+  </body>
+</html>

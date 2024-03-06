@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>usernotdb.html.tera</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .uppercase-text {
+                text-transform: uppercase;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="uppercase-text">Такого юзера нет в базе данных</h1>
+    </body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>regdone.html.tera</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .uppercase-text {
+                text-transform: uppercase;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="uppercase-text">Вы зарегестрированы</h1>
+
+         <form method="get" action="/log_in_page">
+            <button type="submit">Log in!</button>
+        </form>
+    </body>
+</html>

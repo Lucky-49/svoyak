@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>schema_questions_pac.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_questions_pac.css">
+    <script src="/js/prepare_question_pac.js"></script>
+    <script src="/js/connection_script.js"></script>
+
+
+  </head>
+  <body>
+    <main>
+      <div id="sidebar">
+      <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <div id="status" class="pending"></div>
+
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Домой" -->
+          <form action="/home_organiser" method="post">
+              <button type="submit" id="home_organiser">Домой</button>
+          </form>
+
+          <!-- Кнопка "Объявить игру" -->
+          <form action="/prepare_game" method="get">
+              <button type="submit" id="prepare_game">Объявить игру</button>
+          </form>
+
+          <!-- Кнопка "Провести игру" -->
+          <form action="/navigate_prepare_game" method="get" >
+              <button type="submit" id="navigate_prepare_game">Провести игру</button>
+          </form>
+
+          <!-- Кнопка "Обмен пакетами вопросов" -->
+          <form action="/package_transfer" method="post">
+              <button type="submit" id="package_transfer">Обмен пакетами вопросов</button>
+          </form>
+
+          <!-- Кнопка "Вопросы от игроков" -->
+          <form action="/questions_players" method="post">
+              <button type="submit" id="questions_players">Вопросы от игроков</button>
+          </form>
+
+          <!-- "Поле Id ПАКЕТА" -->
+          <p id="header_pac_id">Id пакета вопросов: {{ header_pac_id }}</p>
+
+          <!-- "Поле НАЗВАНИЕ ПАКЕТА" -->
+          <p id="header_pac_name">Название пакета вопросов: {{ header_pac_name }}</p>
+
+          <div id="buttonContainer">
+              <!-- Кнопка "Записать последовательность" -->
+              <form action="/rec_schema_questions/{{ header_pac_id }}" method="post" id="recSchemaForm">
+                  <button type="button" id="rec_schema_questions">Записать последовательность тем</button>
+              </form>
+
+              <!-- Кнопка "Случайный порядок тем" -->
+              <form action="/random_topic/{{ header_pac_id }}" method="post">
+                  <button type="submit" id="random_topic">Случайный порядок тем</button>
+              </form>
+          </div>
+
+          <!-- Левый блок с темами пятёрок -->
+          <h2>Последовательность тем пятёрок вопросов</h2>
+          <div id="topicsList">
+              <!-- Сюда будут вставлены данные о темах вопросов -->
+          </div>
+
+          <!-- Правый блок с вопросами одной темы -->
+          <h2>Вопросы темы</h2>
+          <div id="questionsList">
+              <!-- Сюда будут вставлены вопросы одной темы -->
+          </div>
+
+          <div id="loadingSpinner"></div>
+
+          <script>
+
+              document.addEventListener('DOMContentLoaded', async function () {
+                  const loadingSpinner = document.getElementById('loadingSpinner'); // Добавленная строка
+                  try {
+                      let topicsData = []; // Добавленная переменная для хранения данных о темах
+
+                      const questions_pac_id = {{ header_pac_id }};
+                      const topicsListDiv = document.getElementById('topicsList');
+                      const questionsListDiv = document.getElementById('questionsList');
+
+                      // Загрузка данных о темах вопросов (левый блок)
+                      const responseTopics = await fetch(`/load_topic/${questions_pac_id}`);
+                      const topicsDataResponse = await responseTopics.json();
+
+                      topicsData = topicsDataResponse.topics; // Заполнение массива данных о темах
+
+                      topicsListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                      if (topicsData !== null && topicsData.length > 0) {
+                          // Отобразить данные о темах вопросов
+                          topicsData.forEach((topic, index) => {
+                              const topicDiv = document.createElement('div');
+                              topicDiv.className = 'topic-block';
+                              const topicElement = document.createElement('p');
+                              const hiddenInput = document.createElement('input');
+                              hiddenInput.type = 'hidden';
+                              hiddenInput.name = 'topic_name';
+                              hiddenInput.value = topic.topic_five_questions;
+
+                              topicElement.innerHTML = `<em><strong>${index + 1}. Тема:</strong></em> ${topic.topic_five_questions}`;
+                              topicElement.appendChild(hiddenInput);
+
+                              // Добавление атрибутов для поддержки перетаскивания
+                              topicDiv.draggable = true;
+                              topicDiv.addEventListener('dragstart', dragStart);
+                              topicDiv.addEventListener('dragover', dragOver);
+                              topicDiv.addEventListener('dragenter', dragEnter);
+                              topicDiv.addEventListener('dragleave', dragLeave);
+                              topicDiv.addEventListener('drop', drop);
+
+                              // Добавляем обработчик события клика на элемент темы
+                              topicElement.addEventListener('click', async () => {
+                                  try {
+                                      // Загрузка данных о вопросах для выбранной темы
+                                      const responseQuestions = await fetch(`/topic_questions_data/${questions_pac_id}/${topic.topic_five_questions}`);
+                                      const questionsData = await responseQuestions.json();
+
+                                      questionsListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                                      if (questionsData !== null && questionsData.questions.length > 0) {
+                                          // Сортировка вопросов по цене (по возрастанию)
+                                          questionsData.questions.sort((a, b) => a.price_question - b.price_question);
+
+                                          // Отобразить данные о вопросах
+                                          questionsData.questions.forEach((question) => {
+                                              // Создать элемент с текстом вопроса
+                                              const questionElement = document.createElement('p');
+                                              questionElement.innerHTML = `<strong>Вопрос:</strong> ${question.question}`;
+
+                                              // Создать элемент с текстом ответа
+                                              const answerElement = document.createElement('p');
+                                              answerElement.innerHTML = `<strong>Ответ:</strong> ${question.answer}`;
+
+                                              // Создать элемент с текстом цены
+                                              const priceElement = document.createElement('p');
+                                              priceElement.innerHTML = `<strong>Цена:</strong> ${question.price_question}`;
+
+                                              // Добавить класс "price" к элементу
+                                              priceElement.classList.add('price');
+
+                                              // Создать элемент с текстом Question ID и скрыть его
+                                              const questionIdText = document.createElement('span');
+                                              questionIdText.innerText = `Question ID: ${question.id}`;
+                                              questionIdText.style.display = 'none'; // скрываем с экрана
+
+                                              questionsListDiv.appendChild(questionElement);
+                                              questionsListDiv.appendChild(answerElement);
+                                              questionsListDiv.appendChild(priceElement);
+                                              questionsListDiv.appendChild(questionIdText);
+                                          });
+                                      }
+                                  } catch (error) {
+                                      console.error('Error fetching topic questions data:', error);
+                                  }
+                              });
+
+                              topicDiv.appendChild(topicElement);
+                              topicsListDiv.appendChild(topicDiv);
+                          });
+                      }
+                  } catch (error) {
+                      console.error('Error fetching package data:', error);
+                  }
+
+                  const recSchemaForm = document.getElementById('recSchemaForm');
+
+                  recSchemaForm.addEventListener('click', async () => {
+
+                      disableAllButtons();
+
+                      try {
+                          const questions_pac_id = {{ header_pac_id }};
+                          const topicsListDiv = document.getElementById('topicsList');
+
+                          // Извлечь названия тем из скрытых полей
+                          const hiddenInputs = topicsListDiv.querySelectorAll('input[name="topic_name"]');
+                          const topicsData = Array.from(hiddenInputs).map((hiddenInput, index) => {
+                              const topicName = hiddenInput.value.trim();
+
+                              return {
+                                  name: topicName,
+                                  index: index + 1, // Порядковый номер начинается с 1
+                                  };
+                          });
+
+                          // Показать анимацию загрузки
+                          loadingSpinner.style.display = 'block';
+
+                          // Отправить данные на сервер
+                          const response = await fetch(`/rec_schema_questions/${questions_pac_id}`, {
+                              method: 'POST',
+                              headers: {
+                                  'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify(topicsData),
+                          });
+
+                          if (response.ok) {
+                              console.log('Схема вопросов успешно записана в базу данных');
+                              // Обновление текущей страницы
+                              window.location.reload();
+                          } else {
+                              console.error('Ошибка при записи схемы вопросов в базу данных');
+                          }
+
+                          // Скрыть анимацию загрузки после выполнения функции
+                          loadingSpinner.style.display = 'none';
+                      } catch (error) {
+                          console.error('Error handling rec_schema_questions:', error);
+
+                          // Скрыть анимацию загрузки в случае ошибки
+                          loadingSpinner.style.display = 'none';
+                      }
+                  });
+
+                  // Функция для заблокировки всех кнопок на странице
+                  function disableAllButtons() {
+                      const allButtons = document.querySelectorAll('button');
+                      allButtons.forEach(button => {
+                          button.disabled = true;
+                      });
+                  }
+
+                  let draggingElement = null;
+
+                  function dragStart(e) {
+                      e.dataTransfer.setData('text/plain', ''); // необходимо для Firefox
+                      draggingElement = this;
+                      e.dataTransfer.setDragImage(draggingElement, 0, 0); // необходимо для Edge
+                      draggingElement.classList.add('dragging');
+                  }
+
+                  function dragOver(e) {
+                      e.preventDefault();
+                      const target = e.target.closest('.topic-block');
+                      if (target && target !== draggingElement) {
+                          topicsListDiv.insertBefore(draggingElement, target);
+                      }
+                  }
+
+                  function dragEnter(e) {
+                      e.preventDefault();
+                      const target = e.target.closest('.topic-block');
+                      if (target && target !== draggingElement) {
+                          target.classList.add('drag-over');
+                      }
+                  }
+
+                  function dragLeave(e) {
+                      e.preventDefault();
+                      const target = e.target.closest('.topic-block');
+                      if (target && target !== draggingElement) {
+                          target.classList.remove('drag-over');
+                      }
+                  }
+
+                  function drop(e) {
+                      e.preventDefault();
+                      const target = e.target.closest('.topic-block');
+                      if (target && target !== draggingElement) {
+                          target.parentNode.insertBefore(draggingElement, target.nextSibling);
+                          target.classList.remove('drag-over');
+
+                          // Обновление порядковых номеров в данных
+                          topicsData.forEach((topicData, index) => {
+                              const topicElement = topicsListDiv.querySelectorAll('.topic-block')[index];
+                              const topicNumberElement = topicElement.querySelector('p em strong');
+                              topicData.index = index + 1;
+                              topicNumberElement.innerText = `${topicData.index}. Тема: ${topicData.name}`;
+                          });
+                      }
+                      draggingElement.classList.remove('dragging');
+                      draggingElement = null;
+                  }
+              });
+
+          </script>
+      </div>
+      </form>
+    </main>
+  </body>
+</html>

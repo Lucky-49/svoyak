@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>transfer_questions_pac.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_questions_pac.css">
+    <script src="/js/prepare_question_pac.js"></script>
+    <script src="/js/connection_script.js"></script>
+
+  </head>
+  <body>
+    <main>
+      <div id="sidebar">
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+              <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <div id="status" class="pending"></div>
+
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Возврат к пакетам" -->
+          <form action="/prepare_questions_pac" method="post">
+              <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+          </form>
+
+          <!-- Левый блок с данными all_pacs_data_done -->
+          <h2>Готовые пакеты</h2>
+          <div id="pacsListDone">
+              <!-- Сюда будут вставлены данные о пакетах вопросов (all_pacs_data_done) -->
+          </div>
+
+          <script>
+
+              // Функция для выполнения запроса к серверу и обновления данных на странице
+              async function updatePacsList() {
+                  try {
+                      const responseDone = await fetch('/all_pacs_data_done');
+                      const dataDone = await responseDone.json();
+
+
+                      // Для левого блока
+                      if (dataDone !== null) {
+                          const { questionspacs } = dataDone;
+                          const pacListDivDone = document.getElementById('pacsListDone');
+                          pacListDivDone.innerHTML = ''; // Очистить предыдущий контент
+
+                          // Отобразить данные о пакетах
+                          questionspacs.forEach(pac => {
+                              const pacDiv = document.createElement('div');
+
+                              // Создать элемент с текстом названия пакета
+                              const pacText = document.createElement('p');
+                              pacText.innerText = `Пакет: ${pac.package_name}`;
+
+                              // Создать элемент с текстом Pac ID и скрыть его
+                              const pacIdText = document.createElement('span');
+                              pacIdText.innerText = `Pac ID: ${pac.id}`;
+                              pacIdText.style.display = 'none'; // скрываем с экрана
+
+                              // Создать кнопку "Передать пакет"
+                              const transferButton = document.createElement('button');
+                              transferButton.innerText = 'Передать пакет';
+                              transferButton.className = 'transfer-button'; // Добавить класс view-button
+
+
+                              // Создать чекбокс "Разрешить передачу другим организаторам"
+                              const allowTransferCheckbox = document.createElement('input');
+                              allowTransferCheckbox.type = 'checkbox';
+                              allowTransferCheckbox.id = `allowTransferCheckbox_${pac.id}`; // уникальный идентификатор для каждого чекбокса
+                              const allowTransferLabel = document.createElement('label');
+                              allowTransferLabel.innerText = 'Разрешить передачу другим организаторам';
+                              allowTransferLabel.setAttribute('for', `allowTransferCheckbox_${pac.id}`);
+
+                              //обработчик нажатия кнопки "Передать пакет"
+                              transferButton.addEventListener('click', async function (event) {
+                                  // Получаем состояние чекбокса
+                                  const checkboxId = `allowTransferCheckbox_${pac.id}`;
+                                  const allowTransferCheckbox = document.getElementById(checkboxId);
+                                  const allowTransferValue = allowTransferCheckbox.checked ? 1 : 0;
+
+                                  // Предотвращаем повторное создание контекстного меню
+                                  const existingContextMenu = document.querySelector('.context-menu');
+                                  if (existingContextMenu) {
+                                      existingContextMenu.remove();
+                                  }
+
+                                  // Создаем контекстное меню
+                                  const contextMenu = document.createElement('div');
+                                  contextMenu.className = 'context-menu';
+
+                                  // Получаем данные об организаторах
+                                  const organisersData = await fetch('/organiser_data_context_menu').then(response => response.json());
+
+                                  // Добавляем пункты контекстного меню на основе полученных данных об организаторах
+                                  organisersData.organisers_names.forEach(organiserName => {
+                                      const organiserItem = document.createElement('div');
+                                      organiserItem.innerText = organiserName.user_name;
+
+                                      // Добавляем обработчик события для выполнения передачи пакета выбранному организатору
+                                      organiserItem.addEventListener('click', function (event) {
+                                          // Получаем id организатора_получателя из data-* атрибута
+                                          const organiserId = event.currentTarget.dataset.organiserId;
+
+                                          // Добавляем обработчик события для передачи пакета
+                                          const questions_pac_id = pac.id;
+                                          const receiver_user_id = organiserName.id
+                                          const form = document.createElement('form');
+                                          form.method = 'POST';
+                                          form.action = `/transfer_question_pac/${questions_pac_id}/${receiver_user_id}/${allowTransferValue}`;
+                                          document.body.appendChild(form);
+                                          form.submit();
+                                      });
+                                      contextMenu.appendChild(organiserItem);
+                                  });
+
+                                  // Позиционируем контекстное меню
+                                  contextMenu.style.top = event.clientY + 'px';
+                                  contextMenu.style.left = event.clientX + 'px';
+
+                                  // Добавляем контекстное меню на страницу
+                                  document.body.appendChild(contextMenu);
+
+                                  // Запрещаем стандартное контекстное меню браузера
+                                  event.preventDefault();
+
+                                  // Добавляем обработчик для закрытия контекстного меню при клике вне его области
+                                  function closeContextMenu(event) {
+                                      if (!contextMenu.contains(event.target) && !transferButton.contains(event.target)) {
+                                          contextMenu.remove();
+                                          document.removeEventListener('click', closeContextMenu);
+                                      }
+                                  }
+
+                                  // Добавляем обработчик клика на document.body
+                                  document.addEventListener('click', closeContextMenu);
+
+                                  // Добавляем обработчик для предотвращения закрытия контекстного меню при клике на само меню
+                                  contextMenu.addEventListener('click', function (event) {
+                                      event.stopPropagation();
+                                  });
+                              });
+
+                              // Добавить элементы в родительский div
+                              pacDiv.appendChild(pacText);
+                              pacDiv.appendChild(pacIdText);
+                              pacDiv.appendChild(transferButton);
+                              pacDiv.appendChild(allowTransferCheckbox);
+                              pacDiv.appendChild(allowTransferLabel);
+
+                              // Добавить родительский div в список пакетов
+                              pacListDivDone.appendChild(pacDiv);
+                          });
+                      } else {
+                          console.error('Received null data from the server.');
+                      }
+                  } catch (error) {
+                      console.error('Error fetching package data:', error);
+                  }
+              }
+
+              // Вызвать функцию при загрузке страницы
+              window.onload = updatePacsList;
+          </script>
+      </div>
+        </form>
+    </main>
+  </body>
+</html>

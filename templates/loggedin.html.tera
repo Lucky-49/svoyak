@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>loggedin.html.tera</title>
+        <link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/loggedin.css">
+
+    </head>
+    <body>
+
+    <!-- Для players_count -->
+    <p id="players_count">Количество игроков зарегистрированных в Вашем городе: <span id="playersCountValue"></span></p>
+
+    <h1 class="uppercase-text">{{ header }}</h1> <!-- Вставляем переменную header -->
+
+    <!-- Кнопка "Подготовить solo игру" -->
+    <form method="post" action="/prepare_questions_pac">
+        <input type="hidden" name="game_type" value="solo">
+        <button class="prepare-solo-game-button" type="submit">Подготовить solo игру</button>
+    </form>
+
+    <!-- Кнопка "Подготовить team игру" -->
+    <form method="post" action="/prepare_questions_pac">
+        <input type="hidden" name="game_type" value="team">
+        <button class="prepare-team-game-button" type="submit">Подготовить team игру</button>
+    </form>
+
+    <!-- Кнопка "Провести игру" -->
+    <form method="get" action="/navigate_prepare_game">
+        <button class="conduct-game-button" type="submit">Провести игру</button>
+    </form>
+
+    <!-- Кнопка "Выход" -->
+    <form action="/logout" method="post">
+        <button class="logout-button" type="submit">Выход</button>
+    </form>
+
+    <script>
+         async function updatePlayersCount() {
+             const response = await fetch('/players_count');
+             const data = await response.json();
+             document.getElementById('playersCountValue').innerText = data;
+         }
+
+         // Вызовите функцию при загрузке страницы
+         window.onload = updatePlayersCount;
+    </script>
+    </body>
+</html>

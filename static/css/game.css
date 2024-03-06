@@ -1,0 +1,454 @@
+/*настройка элементов формы сайта*/
+#status {
+    width: 100%; /* Задает ширину элемента в 100% ширины родительского элемента */
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 24px;
+    position: absolute;
+    top: 0; /* Задаем верхнюю границу элемента в 0px */
+    left: 0;
+    right: 0; /* Задаем правую границу элемента в 0px */
+}
+
+body {
+  background-color: yellowgreen; /*цвет фона страницы*/
+}
+
+#status.pending::before {
+  content: "status: connected";
+}
+
+#status.pending {
+    background-color: yellow;
+    color: #000;
+}
+
+#status.connected::before {
+  content: "status: connected";
+}
+
+#status.connected {
+    background-color: green;
+    color: #fff;
+}
+
+#status.reconnecting::before {
+  content: "status: disconnecting";
+}
+
+#status.reconnecting {
+    background-color: red;
+    color: #fff;
+}
+
+
+input:focus {
+    outline: 0;
+    filter: brightness(1.05);
+}
+
+form input { /* Этот стиль будет применяться ко всем элементам input внутри формы, делая их блочными и добавляя отступ между ними. */
+    display: block; /* Отображение элементов как блочных */
+    margin-bottom: 10px; /* Верхний отступ между элементами */
+}
+
+form {
+    position: relative; /* Установите позицию относительно формы */
+}
+
+
+#pac_name { /* надпись "Название пакета вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#topic_five_questions { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#price_question { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+
+#player_question { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+
+#question { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+#answer { /* надпись "Тема пятёрки вопросов" */
+    font-size: 30px; /* Замените 30px на желаемый размер шрифта */
+    text-align: center; /* Выравнивание текста по центру */
+    font-weight: bold;
+    margin: 1% auto;
+}
+
+
+
+button#logout { /* кнопка "выход" */
+    background-color: orangered; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+       margin-right: auto; /* Добавляем для выравнивания вправо */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#logout:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+button#back_pacs_page { /* кнопка "возврат к странице с пакетами" */
+    background-color: blue; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#back_pacs_page:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+
+#city { /*стиль наименования города*/
+  color: black;
+  text-align: center; /* Выравнивание текста по центру */
+  font-size: 24px; /* Размер шрифта (по вашему желанию) */
+   margin-top: 3%; /* Установите -15% высоты */
+  /* Другие стили, если нужны */
+}
+
+
+
+
+#playersList {
+    display: flex;
+    flex-direction: row;
+    width: 100%; /* Занимает 100% ширины страницы */
+    justify-content: space-between; /* Равномерное распределение между элементами */
+    align-items: center; /* Выравнивание элементов по центру */
+    padding: 10px; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+}
+
+button#players_dont_know_answer { /* кнопка "игроки не знают ответ" */
+    background-color: blue; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    width: 60%; /* Задает ширину элемента в 100% ширины родительского элемента */
+    height: 60px; /* Устанавливает высоту кнопок в 30 пикселей, можно изменить на нужное значение */
+    font-size: 1.5em; /* Размер шрифта равен 70% базового размера шрифта */
+    margin: 10px auto; /* Добавляем отступ сверху и снизу, автоматически центрируем по горизонтали */
+    display: block; /* Делаем элемент блочным, чтобы отступы и выравнивание работали */
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#players_dont_know_answer:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+button#cancellation_last_accrual_points { /* кнопка "отменить последние баллы" */
+    background-color: gray; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    height: 60px; /* Устанавливает высоту кнопок в 30 пикселей, можно изменить на нужное значение */
+    font-size: 1.5em; /* Размер шрифта равен 70% базового размера шрифта */
+    display: block; /* Делаем элемент блочным, чтобы отступы и выравнивание работали */
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#cancellation_last_accrual_points:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+#qualifying_roundsList {
+    column-count: 2;
+    column-gap: 20px; /* Опционально: задайте интервал между колонками */
+    padding: 10px;
+    font-size: 24px;
+    font-weight: bold;
+}
+#qualifying_roundsList table th:not(:first-child),
+#qualifying_roundsList table td:not(:first-child) {
+    padding-right: 20px; /* Измените значение по вашему усмотрению */
+}
+
+
+
+
+
+#next_playersList {
+    display: flex;
+    flex-direction: row;
+    width: 100%; /* Занимает 100% ширины страницы */
+    justify-content: space-between; /* Равномерное распределение между элементами */
+    align-items: center; /* Выравнивание элементов по центру */
+    padding: 10px; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+
+}
+
+
+#resultsList {
+    display: flex;
+    flex-direction: row;
+    width: 100%; /* Занимает 100% ширины страницы */
+    justify-content: space-between; /* Равномерное распределение между элементами */
+    align-items: center; /* Выравнивание элементов по центру */
+    padding: 10px; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+
+}
+
+#pacBloc {
+    width: 77%; /* Задайте ширину блока для отображения данных (50% экрана) */
+    float: left;
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 3%; /* Установите -15% высоты */
+    margin-right: 2%; /* Расстояние между блоками */
+    font-weight: bold;
+
+}
+
+#schemaBloc {
+    width: 19%; /* Задайте ширину блока для отображения данных (50% экрана) */
+    float: left;
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 3%; /* Установите -15% высоты */
+    margin-right: 2%; /* Расстояние между блоками */
+    font-size: 48px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+
+}
+
+
+/* Стили для блока игрока */
+.player-block {
+    border: 1px solid #000; /* Толщина 1 пиксель, цвет черный (можете изменить цвет по своему усмотрению) */
+    padding: 10px; /* Внутренний отступ вокруг блока */
+    margin-bottom: 10px; /* Внешний отступ между блоками игроков */
+}
+
+.player-name {
+    margin-right: 10px; /* Пример отступа между именем игрока и счетом */
+    font-size: 30px; /* Размер шрифта (по вашему желанию) */
+    text-align: center; /* Центрирование текста */
+}
+
+.score {
+    font-weight: bold; /* Пример стиля - жирный шрифт */
+    font-size: 48px; /* Размер шрифта (по вашему желанию) */
+    text-align: center; /* Центрирование текста */
+
+
+}
+
+/* Разные цвета заливки для каждого блока в соответсвии с цветом кнопок */
+.player-block:nth-child(1) {
+    background-color: white; /* Цвет заливки для первого блока (можете изменить цвет по своему усмотрению) */
+}
+
+.player-block:nth-child(2) {
+    background-color: dodgerblue; /* Цвет заливки для второго блока (можете изменить цвет по своему усмотрению) */
+}
+
+.player-block:nth-child(3) {
+    background-color: green; /* Цвет заливки для третьего блока (можете изменить цвет по своему усмотрению) */
+}
+
+.player-block:nth-child(4) {
+    background-color: red; /* Цвет заливки для четвертого блока (можете изменить цвет по своему усмотрению) */
+}
+
+
+
+/* Цвет заливки блока победителя игры */
+.final_player-block:nth-child(1) {
+    background-color: gold; /* Цвет заливки для первого блока (можете изменить цвет по своему усмотрению) */
+    margin: 0 auto; /*центрируем по горизонтали*/
+}
+
+
+.place {
+    /* Стили для блока с местом игрока */
+    font-weight: bold; /* Пример стиля - жирный шрифт */
+    font-size: 48px; /* Размер шрифта (по вашему желанию) */
+    text-align: center; /* Центрирование текста */
+}
+
+
+
+/* Стили для кнопок в блоке игрока */
+.correct-button,
+.incorrect-button {
+    width: 50%; /* Занимает 40% ширины родительского элемента */
+    box-sizing: border-box; /* Включает границу и отступ в расчет ширины */
+    height: 60px; /* Устанавливает высоту кнопок в 30 пикселей, можно изменить на нужное значение */
+    font-size: 0.7em; /* Размер шрифта равен 70% базового размера шрифта */
+    border: 3px solid white; /* Красная рамка кнопки толщиной 2 пикселя */
+
+}
+
+.correct-button { /* кнопка "верно" */
+    background-color: green; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    margin-right: auto; /* Добавляем для выравнивания вправо */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+.correct-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+.incorrect-button { /* кнопка "не верно" */
+    background-color: orangered; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    margin-right: auto; /* Добавляем для выравнивания вправо */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+.incorrect-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+
+
+
+button#continue_game { /* кнопка "продолжить игру" */
+    background-color: blue; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+    width: 50%; /* Задает ширину элемента в 100% ширины родительского элемента */
+    height: 60px; /* Устанавливает высоту кнопок в 30 пикселей, можно изменить на нужное значение */
+    font-size: 1.5em; /* Размер шрифта равен 70% базового размера шрифта */
+    margin: 5% auto; /* автоматически центрируем по горизонтали */
+    display: block; /* Делаем элемент блочным, чтобы отступы и выравнивание работали */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#continue_game:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+button.exclude_from_game-button { /* стили для кнопки "Пакет" */
+    color: #fff; /* Цвет текста кнопки */
+    background-color: orangered; /* Фоновый цвет кнопки (голубой) */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Задаем отступы вокруг текста кнопки */
+    cursor: pointer; /* Делаем курсор при наведении */
+    border-radius: 5px; /* Закругляем углы кнопки */
+}
+
+/* Опциональные стили для изменения внешнего вида при наведении */
+button.exclude_from_game-button:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}
+
+
+/*Стили надписи Раунд закончен*/
+#sidebar h1 {
+    color: black;
+    font-size: 72px;
+    text-align: center;
+}
+
+
+/*Стили надписи Следующая четвёрка игроков*/
+#sidebar h2 {
+    color: black;
+    font-size: 72px;
+    text-align: center;
+    margin-top: 5%; /* Установите -15% высоты */
+}
+
+/*Стили надписи Раунд закончен*/
+#sidebar h3 {
+    color: black;
+    font-size: 48px;
+    text-align: left;
+}
+
+
+/* стили для блока участники */
+#reg_playersList{
+    width: 30%; /* Задайте ширину блока для отображения данных (50% экрана) */
+    float: left;
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 3%; /* Установите -15% высоты */
+    margin-right: 2%; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+    border: 2px solid #000; /* Добавьте рамку вокруг блока */
+}
+
+.reg_player_list-block { /*стили игроков на странице players_list*/
+    margin-bottom: 10px; /* Задайте нужное вам расстояние между блоками (например, 10px) */
+    border: 1px solid #ccc; /* Добавьте границу для отделения блоков */
+    padding: 10px; /* Добавьте отступы внутри блока для лучшего визуального разделения */
+}
+
+
+    /* стили для блока резервные участники */
+#reg_reserve_playersList {
+    width: 30%; /* Задайте ширину блока для отображения данных (50% экрана) */
+    float: left;
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 3%; /* Установите -15% высоты */
+    margin-right: 2%; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+    border: 2px solid #000; /* Добавьте рамку вокруг блока */
+}
+
+.reg_reserve_player_list-block { /*стили игроков на странице players_list*/
+    margin-bottom: 10px; /* Задайте нужное вам расстояние между блоками (например, 10px) */
+    border: 1px solid #ccc; /* Добавьте границу для отделения блоков */
+    padding: 10px; /* Добавьте отступы внутри блока для лучшего визуального разделения */
+}
+
+/* стили для блока зрители */
+#reg_spectatorsList {
+    width: 30%; /* Задайте ширину блока для отображения данных (50% экрана) */
+    float: left;
+    padding: 10px; /* Добавьте немного отступа для красоты */
+    margin-top: 3%; /* Установите -15% высоты */
+    margin-right: 2%; /* Расстояние между блоками */
+    font-size: 24px; /* Размер шрифта (по вашему желанию) */
+    font-weight: bold;
+    border: 2px solid #000; /* Добавьте рамку вокруг блока */
+}
+
+.reg_spectator_list-block { /*стили игроков на странице players_list*/
+    margin-bottom: 10px; /* Задайте нужное вам расстояние между блоками (например, 10px) */
+    border: 1px solid #ccc; /* Добавьте границу для отделения блоков */
+    padding: 10px; /* Добавьте отступы внутри блока для лучшего визуального разделения */
+}
+
+button#navigate_prepare_game { /* кнопка "провести игру" */
+    background-color: blue; /* Установите красный цвет фона */
+    color: white; /* Установите белый цвет текста */
+
+}
+/* Опциональные стили для изменения внешнего вида при наведении */
+button#navigate_prepare_game:hover {
+    background-color: darkviolet; /* Новый цвет фона при наведении */
+}

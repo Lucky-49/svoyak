@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>prepare_questions_pac.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_questions_pac.css">
+    <script src="/js/prepare_question_pac.js"></script>
+    <script src="/js/connection_script.js"></script>
+
+  </head>
+  <body>
+    <main>
+        <div id="sidebar">
+            <!-- Кнопка "Выход" -->
+            <form action="/logout" method="post">
+                <button type="submit" id="logout">Выход</button>
+            </form>
+
+            <div id="status" class="pending"></div>
+
+            <p id="city">Ваш город: {{ header }}</p>
+
+            <!-- Кнопка "Домой" -->
+            <form action="/home_organiser" method="post">
+                <button type="submit" id="home_organiser">Домой</button>
+            </form>
+
+            <!-- Кнопка "Объявить игру" -->
+            <form action="/prepare_game" method="get">
+                <button type="submit" id="prepare_game">Объявить игру</button>
+            </form>
+
+            <!-- Кнопка "Провести игру" -->
+            <form action="/navigate_prepare_game" method="get" >
+                <button type="submit" id="navigate_prepare_game">Провести игру</button>
+            </form>
+
+            <!-- Кнопка "Обмен пакетами вопросов" -->
+            <form action="/package_transfer" method="post">
+                <button type="submit" id="package_transfer">Обмен пакетами вопросов</button>
+            </form>
+
+
+            <!-- Кнопка "Вопросы от игроков" -->
+            <form action="/questions_players" method="post">
+                <button type="submit" id="questions_players">Вопросы от игроков</button>
+            </form>
+
+            <p id="game_type">Тип игры: {{ game_type }}</p>
+
+            <!-- Левый блок с данными pacs_data_done_not_game -->
+            <h2>Готовые пакеты</h2>
+            <div id="pacsListDone">
+                <!-- Сюда будут вставлены данные о пакетах вопросов (pacs_data_done_not_game) -->
+            </div>
+
+            <!-- Правый блок с данными pacs_data_not_done -->
+            <h2>В стадии подготовки</h2>
+            <div id="pacsListNotDone">
+                <!-- Сюда будут вставлены данные о пакетах вопросов (pacs_data_not_done) -->
+            </div>
+
+            <script>
+                // Функция для выполнения запроса к серверу и обновления данных на странице
+                async function updatePacsList() {
+                    try {
+                        const responseDone = await fetch('/pacs_data_done_not_game/{{ game_type }}');
+                        const responseNotDone = await fetch('/pacs_data_not_done/{{ game_type }}');
+
+                        const dataDone = await responseDone.json();
+                        const dataNotDone = await responseNotDone.json();
+
+                        // Для левого блока
+                        if (dataDone !== null) {
+                            const { questionspacs } = dataDone;
+                            const pacListDivDone = document.getElementById('pacsListDone');
+                            pacListDivDone.innerHTML = ''; // Очистить предыдущий контент
+
+                            // Отобразить данные о пакетах
+                            questionspacs.forEach(pac => {
+                                const pacDiv = document.createElement('div');
+
+                                // Создать элемент с текстом названия пакета
+                                const pacText = document.createElement('p');
+                                pacText.innerText = `Пакет: ${pac.package_name}`;
+
+                                // Создать элемент с текстом Pac ID и скрыть его
+                                const pacIdText = document.createElement('span');
+                                pacIdText.innerText = `Pac ID: ${pac.id}`;
+                                //pacIdText.style.display = 'none'; // Скрыть с экрана
+
+                                // Создать кнопку "Просмотр"
+                                const viewButton = document.createElement('button');
+                                viewButton.innerText = 'Просмотр';
+                                viewButton.className = 'view-button'; // Добавить класс view-button
+                                // Назначить обработчик событий для кнопки "Просмотр"
+                                viewButton.onclick = function () {
+                                    // Вызвать функцию edit_pac на сервере
+                                    const questions_pac_id = pac.id;
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = `/view_pac/${questions_pac_id}/${game_type}`;
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                };
+
+
+                                // Создать кнопку "Назначить очерёдность тем"
+                                const queueButton = document.createElement('button');
+                                queueButton.innerText = 'Назначить очерёдность тем';
+                                queueButton.className = 'queue-button'; // Добавить класс queue-button
+                                // Назначить обработчик событий для кнопки
+                                queueButton.onclick = function () {
+                                    // Вызвать функцию на сервере
+                                    const questions_pac_id = pac.id;
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = `/sequence_questions/${questions_pac_id}`;
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                };
+
+
+
+                                // Добавить элементы в родительский div
+                                pacDiv.appendChild(pacText);
+                                pacDiv.appendChild(pacIdText);
+                                pacDiv.appendChild(viewButton);
+                                pacDiv.appendChild(queueButton);
+
+                                // Добавить родительский div в список пакетов
+                                pacListDivDone.appendChild(pacDiv);
+                            });
+                        } else {
+                            console.error('Received null data from the server.');
+                        }
+
+                        // Для правого блока
+                        if (dataNotDone !== null) {
+                            const { questionspacs } = dataNotDone;
+                            const pacListDivNotDone = document.getElementById('pacsListNotDone');
+                            pacListDivNotDone.innerHTML = ''; // Очистить предыдущий контент
+
+
+                            // Отобразить данные о пакетах
+                            questionspacs.forEach(async pac => {
+                                const pacDiv = document.createElement('div');
+
+                                // Создать элемент с текстом названия пакета
+                                const pacText = document.createElement('p');
+                                pacText.innerText = `Пакет: ${pac.package_name}`;
+
+                                // Создать элемент с текстом Pac ID и скрыть его
+                                const pacIdText = document.createElement('span');
+                                pacIdText.innerText = `Pac ID: ${pac.id}`;
+                                //pacIdText.style.display = 'none'; // Скрыть с экрана
+
+                                // Создать кнопку "Редактировать"
+                                const editButton = document.createElement('button');
+                                editButton.innerText = 'Редактировать';
+                                editButton.className = 'edit-button'; // Добавить класс edit-button
+
+                                // Назначить обработчик событий для кнопки "Редактировать"
+                                editButton.onclick = function () {
+                                    const questions_pac_id = pac.id;
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = `/edit_pac/${questions_pac_id}/${game_type}`;
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                };
+
+
+
+                                // Добавить элементы в родительский div
+                                pacDiv.appendChild(pacText);
+                                pacDiv.appendChild(pacIdText);
+                                pacDiv.appendChild(editButton);
+
+                                // Установить стиль для элемента "pacText"
+                                pacText.style.display = 'inline-block';
+
+                                // Добавить количество вопросов
+                                const questionCountSpan = document.createElement('span');
+                                const questionCount = await getQuestionCount(pac.id);
+                                questionCountSpan.innerText = `${questionCount} вопросов`;
+                                pacDiv.appendChild(questionCountSpan);
+
+                                // Добавить родительский div в список пакетов
+                                pacListDivNotDone.appendChild(pacDiv);
+                            });
+                        } else {
+                            console.error('Received null data from the server.');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching package data:', error);
+                    }
+                }
+
+                // Функция для выполнения запроса к серверу и получения количества вопросов
+                async function getQuestionCount(questionsPacId) {
+                    try {
+                        const response = await fetch(`/questions_count/${questionsPacId}`);
+                        const data = await response.json();
+                        return data; // Возвращаем количество вопросов
+                    } catch (error) {
+                        console.error('Error fetching question count:', error);
+                        return 'N/A'; // Возвращаем "N/A" в случае ошибки
+                    }
+                }
+
+                // Вызвать функцию при загрузке страницы
+                window.onload = updatePacsList;
+            </script>
+        </div>
+
+        <form id="rec_questions_pac" action="/rec_questions_pac" method="post">
+            <!-- "Тип игры" -->
+            <input type="hidden" name="game_type" value={{ game_type }}>
+
+            <!-- "Поле НАЗВАНИЕ ПАКЕТА" -->
+            <input type="text" name="package_name_form" id="pac_name" autocomplete="off"
+               placeholder="Для создания нового пакета вопросов впиши название" autofocus oninput="validation()">
+
+            <!-- Кнопка "Создать пакет" -->
+            <button type="submit" id="create_questions_pac" disabled>Создать пакет</button>
+        </form>
+    </main>
+  </body>
+</html>

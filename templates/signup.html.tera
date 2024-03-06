@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>signup.html.tera</title>
+    </head>
+    <body>
+        <h1>{{ header }}</h1>
+        <form method="post" action="/sign_up">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <input type="text" name="username_signup" placeholder="Username" />
+            <input type="password" name="password_signup" placeholder="Password" />
+            <input type="text" name="city_signup" placeholder="City" />
+            <input type="text" name="role_signup" placeholder="Role" />
+            <input type="text" name="first_name_user" placeholder="Имя" />
+            <input type="text" name="patronymic_user" placeholder="Отчество" />
+            <input type="text" name="last_name_user" placeholder="Фамилия" />
+            <input type="text" name="phone_user" placeholder="Телефон 89..." />
+            <input type="text" name="mail_user" placeholder="e-mail" />
+            <button type="submit">Sign up!</button>
+        </form>
+        <h1> Добавляй любой контент и кнопки </h1>
+        </form>
+                <!-- Кнопка "Выход" -->
+                        <form action="/logout" method="post">
+                            <button class="logout-button" type="submit">Выход</button>
+                        </form>
+    </body>
+</html>

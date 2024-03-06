@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>announce_game.html.tera</title>
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/script.js" charset="utf-8" defer></script>
+</head>
+<body>
+<main>
+<div id="sidebar">
+<div id="status" class="pending"></div>
+<p id="city">Ваш город: {{ header }}</p>
+<!-- Кнопка "Выход" -->
+<form action="/logout" method="post">
+<button type="submit" id="logout">Выход</button>
+</form>
+
+<!-- Кнопка "Возврат к пакетам" -->
+<form action="/prepare_questions_pac" method="post">
+<button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+</form>
+
+</div>
+
+ <!-- Левый блок с формой -->
+        <div id="announceGame">
+            <form action="/announce_game" method="post">
+           <label for="datepicker">Выберите дату:</label>
+                <input type="date" id="datepicker" name="datepicker">
+                <label for="timepicker">Выберите время:</label>
+                <input type="time" id="timepicker" name="timepicker">
+                <textarea name="announce_message" id="announce_message" autocomplete="off"
+                          placeholder="Место проведения игры (адрес, название заведения)" autofocus oninput="validation()"></textarea>
+
+                <label for="seats_spectator">Количество мест в зрительном зале</label>
+                <textarea name="seats_spectator" id="seats_spectator" autocomplete="off"
+                      placeholder="Количество мест" autofocus oninput="validation()"></textarea>
+
+                <label for="price_player">Стоимость для игрока</label>
+                <textarea name="price_player" id="price_player" autocomplete="off"
+                          placeholder="Игрок" autofocus oninput="validation()"></textarea>
+
+                <label for="price_spectator">Стоимость для зрителя</label>
+                <textarea name="price_spectator" id="price_spectator" autocomplete="off"
+                      placeholder="Зритель" autofocus oninput="validation()"></textarea>
+
+
+                <button type="submit" id="announce_button" disabled>Объявить дату игры</button>
+            </form>
+        </div>
+
+<!-- Правый блок с обьявленными играми-->
+    <div id="gamesList">
+     <!-- Сюда будут вставлены данные об объявленных играх -->
+    </div>
+    </form>
+</main>
+
+<script>
+// Функция для форматирования даты в строку DD-MM-YYYY
+function formatDate(date) {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+async function fetchData() {
+    try {
+        // Загрузка данных о темах вопросов (правый блок)
+        const response = await fetch(`/announce_games_data`);
+        const data = await response.json();
+
+        const games = data.games;
+
+        if (games !== null && games.length > 0) {
+            // Преобразование строк дат и времени в объекты типа Date и сортировка по возрастанию
+            const sortedGames = games.sort((a, b) => {
+                const dateA = new Date(`${a.game_day}T${a.game_time}`);
+                const dateB = new Date(`${b.game_day}T${b.game_time}`);
+
+                // Сначала сортируем по дате
+                if (dateA > dateB) return 1;
+                if (dateA < dateB) return -1;
+
+                // Если даты совпадают, сортируем по времени
+                return dateA.getTime() - dateB.getTime();
+            });
+
+            const gameListDiv = document.getElementById('gamesList');
+            gameListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+            // Отобразить отсортированные данные об играх
+            sortedGames.forEach(game => {
+                const gameDiv = document.createElement('div');
+                gameDiv.className = 'game-block'; // Добавьте класс для стилизации расстояния между блоками тем
+
+
+// Создать элемент с ID игры
+                const IdElement = document.createElement('p');
+                IdElement.innerHTML = `<strong>ID игы:</strong> ${game.game_id}`;
+                IdElement.style.display = 'none'; // Скрыть с экрана
+
+
+
+                // Создать элемент с датой игры
+                const dateElement = document.createElement('p');
+                const formattedDate = formatDate(new Date(`${game.game_day}T${game.game_time}`));
+                dateElement.innerHTML = `<strong>Дата игры:</strong> ${formattedDate}`;
+
+                // Создать элемент со временем игры
+                const timeElement = document.createElement('p');
+                timeElement.innerHTML = `<strong>Время начала игры:</strong> ${game.game_time}`;
+
+                // Создать элемент с местом проведения игры
+                const locationElement = document.createElement('p');
+                locationElement.innerHTML = `<strong>Место проведения игры:</strong> ${game.game_location}`;
+
+                // Создать элемент с Id пакета игры
+                const questions_pacElement = document.createElement('p');
+                // Добавим условие: если questions_pac не null, то отобразим его
+                questions_pacElement.innerHTML = game.questions_pac !== null
+                    ? `<strong>Пакет вопросов:</strong> ${game.questions_pac}`
+                    : '';
+
+                // Создать элемент с количеством зарегистрировавшихся игроков
+                const players_countElement = document.createElement('p');
+                players_countElement.innerHTML = `<strong>Зарегестрировано игроков:</strong> ${game.players_count}`;
+
+                // Создать элемент с количеством зарегистрировавшихся зрителей
+                const spectators_countElement = document.createElement('p');
+                spectators_countElement.innerHTML = `<strong>Зарегестрировано зрителей:</strong> ${game.spectators_count}`;
+
+
+                // Создать кнопку "Прикрепить пакет вопросов"
+                const attach_packageButton = document.createElement('button');
+                attach_packageButton.innerText = 'Пакет';
+                attach_packageButton.className = 'attach_package-button'; // Добавить класс package-button чтобы менять стиль;
+
+//добавляем контекстное меню при нажатии на кнопку "Пакет"
+attach_packageButton.addEventListener('click', async function (event) {
+    // Предотвращаем повторное создание контекстного меню
+    const existingContextMenu = document.querySelector('.context-menu');
+    if (existingContextMenu) {
+        existingContextMenu.remove();
+    }
+
+    // Получаем данные о пакетах вопросов с сервера
+    const pacsData = await fetch('/pacs_data_done_not_game').then(response => response.json());
+
+    // Создаем контекстное меню
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'context-menu';
+
+    // Добавляем пункты контекстного меню на основе полученных данных о пакетах
+    pacsData.questionspacs.forEach(pacName => {
+        const pacItem = document.createElement('div');
+        pacItem.innerText = pacName.package_name;
+
+        // Используем data-* атрибут для хранения id
+        pacItem.dataset.pacId = pacName.id;
+
+        // Добавляем обработчик события для выполнения действия с выбранным пакетом
+        pacItem.addEventListener('click', function (event) {
+            // Получаем id пакета вопросов из data-* атрибута
+            const pacId = event.currentTarget.dataset.pacId;
+            // Получаем id игры из data-* атрибута
+            const gameId = game.game_id
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/attach_questions_pac_to_game/${pacId}/${gameId}`;
+            document.body.appendChild(form);
+            form.submit();
+        });
+        contextMenu.appendChild(pacItem);
+    });
+
+    // Позиционируем контекстное меню
+    contextMenu.style.top = event.pageY + 'px';
+    contextMenu.style.left = event.pageX + 'px';
+
+    // Добавляем контекстное меню на страницу
+    document.body.appendChild(contextMenu);
+
+    // Запрещаем стандартное контекстное меню браузера
+    event.preventDefault();
+
+    // Добавляем обработчик для закрытия контекстного меню при клике вне его области
+    function closeContextMenu(event) {
+        if (!contextMenu.contains(event.target) && !attach_packageButton.contains(event.target)) {
+            contextMenu.remove();
+            document.removeEventListener('click', closeContextMenu);
+        }
+    }
+
+    // Добавляем обработчик клика на document.body
+    document.addEventListener('click', closeContextMenu);
+
+    // Добавляем обработчик для предотвращения закрытия контекстного меню при клике на само меню
+    contextMenu.addEventListener('click', function (event) {
+        event.stopPropagation();
+    });
+});
+
+                // Добавить элементы в родительский div
+                gameDiv.appendChild(IdElement);
+                gameDiv.appendChild(dateElement);
+                gameDiv.appendChild(timeElement);
+                gameDiv.appendChild(locationElement);
+                gameDiv.appendChild(questions_pacElement);
+                gameDiv.appendChild(players_countElement);
+                gameDiv.appendChild(spectators_countElement);
+
+                // Добавить кнопку "Пакет" только если question_pac равен null
+                if (game.questions_pac === null) {
+                    gameDiv.appendChild(attach_packageButton);
+                }
+
+                // Добавить родительский div в список тем
+                gameListDiv.appendChild(gameDiv);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching package data:', error);
+    }
+}
+
+// Вызов функции при загрузке страницы
+document.addEventListener('DOMContentLoaded', fetchData);
+</script>
+
+</body>
+</html>

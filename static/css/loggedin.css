@@ -1,0 +1,55 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.uppercase-text {
+    text-transform: uppercase;
+}
+
+.logout-button,
+.prepare-solo-game-button,
+.prepare-team-game-button,
+.conduct-game-button {
+    margin-top: 20px;
+    padding: 10px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+#players_count {
+    font-size: 20px;
+    text-align: left;
+    font-weight: bold;
+    position: absolute;
+    top: 10%;
+    left: 30%;
+    margin: 0;
+}
+
+
+.logout-button {
+    background-color: #ff0000;
+    color: #ffffff;
+}
+
+
+.prepare-solo-game-button {
+    background-color: orange; /* цвет */
+    color: #000000; /* черный цвет */
+}
+
+.prepare-team-game-button {
+    background-color: blue; /* цвет */
+    color: white; /* черный цвет */
+}
+
+.conduct-game-button {
+    background-color: #00ff00; /* зеленый цвет */
+    color: #ffffff; /* белый цвет */
+}

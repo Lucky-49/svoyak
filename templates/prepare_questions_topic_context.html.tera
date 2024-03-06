@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>prepare_questions_topic_context.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_questions.css">
+    <script src="/js/prepare_question_topic.js"></script>
+    <script src="/js/connection_script.js"></script>
+
+  </head>
+  <body>
+    <main>
+      <div id="sidebar">
+        <div id="status" class="pending"></div>
+          <p id="city">Ваш город: {{ header }}</p>
+
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+             <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <!-- Кнопка "Возврат к пакетам" -->
+          <form action="/prepare_questions_pac" method="post">
+              <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+          </form>
+      </div>
+
+        <!-- "Поле КОЛИЧЕСТВО ВОПРОСОВ" -->
+        <p id="text">Необходимое количество вопросов: 270</p>
+        <p id="questions_count">Количество подготовленных вопросов: <span id="questionsCountValue"></span></p>
+
+        <!-- Правый блок с названиями тем вопросов-->
+        <div id="topicsList">
+            <!-- Сюда будут вставлены данные о темах вопросов -->
+        </div>
+
+        <div id="createQuestionsSection">
+            <form action="/rec_topic_question_player_context/{{ header_pac_id }}/{{player_question_id}}" method="post">
+
+                <!-- "Поле Id ВОПРОСА ИГРОКА" -->
+                <p id="player_question_id">Id вопроса игрока: {{ player_question_id }}</p>
+
+                <!-- "Поле Id ПАКЕТА" -->
+                <p id="header_pac_id">Id пакета вопросов: {{ header_pac_id }}</p>
+
+
+                <!-- "Поле НАЗВАНИЕ ПАКЕТА" -->
+                <p id="header_pac_name">Название пакета вопросов: {{ package_name }}</p>
+
+                <!-- "Поле НАЗВАНИЕ ПЯТЁРКИ ВОПРОСОВ" -->
+                <textarea name="topic_five_questions" id="topic_questions" autocomplete="off"
+                       placeholder="Тема пятёрки вопросов" autofocus onchange="validation()">{{player_topic_five_questions}}</textarea>
+
+                <!-- "Поле ВОПРОС" -->
+                <textarea name="question" id="question" autocomplete="off"
+                       placeholder="Вопрос" autofocus onchange="validation()">{{player_question}}</textarea>
+
+                <!-- "Поле ОТВЕТ" -->
+                <textarea name="answer" id="answer" autocomplete="off"
+                       placeholder="Ответ" autofocus onchange="validation()">{{player_answer_question}}</textarea>
+
+                <!-- "Поле ЦЕНА ВОПРОСА" -->
+                <input type="number" name="price_question" id="price_question" autocomplete="off"
+                           placeholder="Цена вопроса (баллы)" autofocus onchange="validation()">
+
+                <!-- Кнопка "Записать вопрос" -->
+                <button type="submit" id="rec_question" disabled>Записать вопрос</button>
+            </form>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Начинаем проверку числа, вводимого в поле "ЦЕНА ВОПРОСА"
+            const priceQuestionInput = document.getElementById('price_question');
+
+            function validatePriceInput() {
+                const inputValue = priceQuestionInput.value;
+                const inputValueAsNumber = parseInt(inputValue, 10);
+
+                if (inputValue.length >= 2) {
+                    const maxPrice = 50; // Максимальное значение цены
+                    const isPriceMultipleOfTen = inputValueAsNumber % 10 === 0;
+                    const isWithinRange = inputValueAsNumber <= maxPrice;
+
+                    // Получаем цены уже отображенных вопросов
+                    const existingPrices = Array.from(document.querySelectorAll('.question-block p strong'))
+                        .filter(element => element.textContent.trim() === 'Цена:')
+                        .map(element => parseInt(element.nextSibling.nodeValue.trim(), 10));
+
+                    const isUnique = !existingPrices.includes(inputValueAsNumber);
+
+                    if (isWithinRange && isPriceMultipleOfTen && isUnique) {
+                        // Включить кнопку "Записать вопрос"
+                        document.getElementById('rec_question').disabled = false;
+                    } else {
+                        // Вывести стандартное всплывающее окно браузера с сообщением
+                        if (!isWithinRange) {
+                            alert('Цена вопроса должна быть числом до ' + maxPrice);
+                        } else if (!isPriceMultipleOfTen) {
+                            alert('Цена вопроса должна быть кратна 10!');
+                        } else if (!isUnique) {
+                            alert('Цена вопроса не должна совпадать с уже существующими вопросами!');
+                        }
+                        document.getElementById('rec_question').disabled = true;
+                    }
+                }
+            }
+
+            // Добавляем обработчик изменения поля "Цена"
+            priceQuestionInput.addEventListener('input', validatePriceInput);
+
+            const header_pac_id_element = document.getElementById('header_pac_id');
+            const header_pac_id_text = header_pac_id_element.innerText;
+            const questions_pac_id = parseInt(header_pac_id_text.split(':')[1].trim(), 10);
+
+            try {
+                const responseCount = await fetch(`/questions_count/${questions_pac_id}`);
+                const questionCount = await responseCount.json();
+
+                // Отобразите количество вопросов на странице
+                document.getElementById('questionsCountValue').innerText = questionCount;
+
+                // Загрузка данных о темах вопросов (правый блок)
+                const responseTopics = await fetch(`/unique_topics_data/${questions_pac_id}`);
+                const topicsData = await responseTopics.json();
+
+                const topicsListDiv = document.getElementById('topicsList');
+                topicsListDiv.innerHTML = ''; // Очистить предыдущий контент
+
+                if (topicsData !== null && topicsData.topics.length > 0) {
+                    // Отобразить данные о темах вопросов
+                    topicsData.topics.forEach(topic => {
+                        const topicDiv = document.createElement('div');
+                        topicDiv.className = 'topic-block'; // Добавьте класс для стилизации расстояния между блоками тем
+
+                        // Создать элемент с текстом темы вопроса
+                        const topicElement = document.createElement('p');
+                        topicElement.innerHTML = `<em><strong>Тема:</strong></em> ${topic.topic_five_questions}`;
+
+                        // Добавить элемент в родительский div
+                        topicDiv.appendChild(topicElement);
+
+                        // Добавить родительский div в список тем
+                        topicsListDiv.prepend(topicDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching package data:', error);
+            }
+        });
+    </script>
+  </body>
+</html>

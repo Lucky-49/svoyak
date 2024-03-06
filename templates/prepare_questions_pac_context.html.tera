@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>prepare_questions_pac_context.html.tera</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/style_questions.css">
+    <script src="/js/prepare_question_pac_context.js"></script>
+    <script src="/js/connection_script.js"></script>
+
+  </head>
+  <body>
+    <main>
+      <div id="sidebar">
+        <div id="status" class="pending"></div>
+        <p id="city">Ваш город: {{ header }}</p>
+          <!-- Кнопка "Выход" -->
+          <form action="/logout" method="post">
+             <button type="submit" id="logout">Выход</button>
+          </form>
+
+          <!-- Кнопка "Возврат к пакетам" -->
+          <form action="/prepare_questions_pac" method="post">
+              <button type="submit" id="back_pacs_page">Возврат к странице с пакетами</button>
+          </form>
+      </div>
+
+        <div id="createQuestionsSection">
+            <form action="/rec_question_from_player_context/{{player_question_id}}" method="post">
+
+                <!-- "Поле Id ВОПРОСА ИГРОКА" -->
+                <p id="player_question_id">Id вопроса игрока: {{ player_question_id }}</p>
+
+                <!-- "Поле НАЗВАНИЕ ПАКЕТА" -->
+                <input type="text" name="package_name" id="package_name" autocomplete="off"
+                       placeholder="Для создания нового пакета вопросов впиши название" autofocus onchange="validation()">
+
+                <!-- "Поле НАЗВАНИЕ ПЯТЁРКИ ВОПРОСОВ" -->
+                <textarea name="topic_five_questions" id="topic_questions" autocomplete="off"
+                       placeholder="Тема пятёрки вопросов" autofocus onchange="validation()">{{player_topic_five_questions}}</textarea>
+
+                <!-- "Поле ВОПРОС" -->
+                <textarea name="question" id="question" autocomplete="off"
+                       placeholder="Вопрос" autofocus onchange="validation()">{{player_question}}</textarea>
+
+                <!-- "Поле ОТВЕТ" -->
+                <textarea name="answer" id="answer" autocomplete="off"
+                       placeholder="Ответ" autofocus onchange="validation()">{{player_answer_question}}</textarea>
+
+                <!-- "Поле ЦЕНА ВОПРОСА" -->
+                <input type="number" name="price_question" id="price_question" autocomplete="off"
+                           placeholder="Цена вопроса (баллы)" autofocus onchange="validation()">
+
+                <!-- Кнопка "Записать вопрос" -->
+                <button type="submit" id="rec_question_from_player_context" disabled>Записать вопрос</button>
+            </form>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Начинаем проверку числа, вводимого в поле "ЦЕНА ВОПРОСА"
+            const priceQuestionInput = document.getElementById('price_question');
+            const recQuestionButton = document.getElementById('re_rec_question'); // Добавили кнопку записи
+
+            function validatePriceInput() {
+                const inputValue = priceQuestionInput.value;
+                const inputValueAsNumber = parseInt(inputValue, 10);
+
+                if (inputValue.length >= 2) {
+                    const maxPrice = 50; // Максимальное значение цены
+                    const isPriceMultipleOfTen = inputValueAsNumber % 10 === 0;
+                    const isWithinRange = inputValueAsNumber <= maxPrice;
+
+                    // Получаем цены уже отображенных вопросов
+                    const existingPrices = Array.from(document.querySelectorAll('.question-block p strong'))
+                        .filter(element => element.textContent.trim() === 'Цена:')
+                        .map(element => parseInt(element.nextSibling.nodeValue.trim(), 10));
+
+                    const isUnique = !existingPrices.includes(inputValueAsNumber);
+
+                    if (isWithinRange && isPriceMultipleOfTen && isUnique) {
+                        // Включить кнопку "Записать вопрос"
+                        recQuestionButton.disabled = false;
+                    } else {
+                        // Вывести стандартное всплывающее окно браузера с сообщением
+                        if (!isWithinRange) {
+                            alert('Цена вопроса должна быть числом до ' + maxPrice);
+                        } else if (!isPriceMultipleOfTen) {
+                            alert('Цена вопроса должна быть кратна 10!');
+                        } else if (!isUnique) {
+                            alert('Цена вопроса не должна совпадать с уже существующими вопросами!');
+                        }
+                        recQuestionButton.disabled = true;
+                    }
+                }
+            }
+
+            // Добавляем обработчик изменения поля "Цена"
+            priceQuestionInput.addEventListener('input', validatePriceInput);
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+            <title>visitor.html.tera</title>
+    </head>
+    <body>
+        <h1>Страница для зарегистрированных посетителей</h1>
+
+<!-- Кнопка "Выход" -->
+        <form action="/logout" method="post">
+            <button class="logout-button" type="submit">Выход</button>
+        </form>
+
+        <h1> Добавляй любой контент и кнопки </h1>
+    </body>
+</html>
