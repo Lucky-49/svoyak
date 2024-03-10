@@ -16,9 +16,10 @@ use std::io::Read;
 use std::path::Path;
 use teloxide::prelude::ChatId;
 use tokio::task::spawn_blocking;
+use crate::tg::token::{SUPERADMIN_CITY, SUPERADMIN_PASSWORD, SUPERADMIN_ROLE, SUPERADMIN_USERNAME};
 
 pub async fn run_db() -> Result<(), Box<dyn std::error::Error>> {
-    //создание базы данных в дерриктории проекта
+    //создание базы данных в директории проекта
     let current_dir = env::current_dir()?;
     let database_path = current_dir.join("Users.db");
     let schema_file_path = current_dir.join("src").join("schema.sql");
@@ -37,6 +38,11 @@ pub async fn run_db() -> Result<(), Box<dyn std::error::Error>> {
 
         // Выполняем пакет SQL
         conn.execute_batch(&sql_file_contents)?;
+
+        conn.execute(
+            "INSERT INTO users (role, username, password, city) VALUES (?1, ?2, ?3, ?4)",
+            params![SUPERADMIN_ROLE, SUPERADMIN_USERNAME, SUPERADMIN_PASSWORD, SUPERADMIN_CITY]
+        ).expect("Не удалось вставить данные superadmin");
 
         // Соединение будет закрыто автоматически, когда оно выйдет за пределы области видимости
     }
