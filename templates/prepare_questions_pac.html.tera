@@ -47,8 +47,6 @@
                 <button type="submit" id="questions_players">Вопросы от игроков</button>
             </form>
 
-            <p id="game_type">Тип игры: {{ game_type }}</p>
-
             <!-- Левый блок с данными pacs_data_done_not_game -->
             <h2>Готовые пакеты</h2>
             <div id="pacsListDone">
@@ -65,8 +63,8 @@
                 // Функция для выполнения запроса к серверу и обновления данных на странице
                 async function updatePacsList() {
                     try {
-                        const responseDone = await fetch('/pacs_data_done_not_game/{{ game_type }}');
-                        const responseNotDone = await fetch('/pacs_data_not_done/{{ game_type }}');
+                        const responseDone = await fetch('/pacs_data_done_not_game');
+                        const responseNotDone = await fetch('/pacs_data_not_done');
 
                         const dataDone = await responseDone.json();
                         const dataNotDone = await responseNotDone.json();
@@ -100,7 +98,7 @@
                                     const questions_pac_id = pac.id;
                                     const form = document.createElement('form');
                                     form.method = 'POST';
-                                    form.action = `/view_pac/${questions_pac_id}/${game_type}`;
+                                    form.action = `/view_pac/${questions_pac_id}`;
                                     document.body.appendChild(form);
                                     form.submit();
                                 };
@@ -166,7 +164,7 @@
                                     const questions_pac_id = pac.id;
                                     const form = document.createElement('form');
                                     form.method = 'POST';
-                                    form.action = `/edit_pac/${questions_pac_id}/${game_type}`;
+                                    form.action = `/edit_pac/${questions_pac_id}`;
                                     document.body.appendChild(form);
                                     form.submit();
                                 };
@@ -216,8 +214,6 @@
         </div>
 
         <form id="rec_questions_pac" action="/rec_questions_pac" method="post">
-            <!-- "Тип игры" -->
-            <input type="hidden" name="game_type" value={{ game_type }}>
 
             <!-- "Поле НАЗВАНИЕ ПАКЕТА" -->
             <input type="text" name="package_name_form" id="pac_name" autocomplete="off"

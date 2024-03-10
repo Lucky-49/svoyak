@@ -51,7 +51,7 @@
             </form>
         </div>
 
-<!-- Правый блок с обьявленными играми-->
+<!-- Правый блок с объявленными играми-->
     <div id="gamesList">
      <!-- Сюда будут вставлены данные об объявленных играх -->
     </div>
@@ -127,11 +127,11 @@ async function fetchData() {
 
                 // Создать элемент с количеством зарегистрировавшихся игроков
                 const players_countElement = document.createElement('p');
-                players_countElement.innerHTML = `<strong>Зарегестрировано игроков:</strong> ${game.players_count}`;
+                players_countElement.innerHTML = `<strong>Зарегистрировано игроков:</strong> ${game.players_count}`;
 
                 // Создать элемент с количеством зарегистрировавшихся зрителей
                 const spectators_countElement = document.createElement('p');
-                spectators_countElement.innerHTML = `<strong>Зарегестрировано зрителей:</strong> ${game.spectators_count}`;
+                spectators_countElement.innerHTML = `<strong>Зарегистрировано зрителей:</strong> ${game.spectators_count}`;
 
 
                 // Создать кнопку "Прикрепить пакет вопросов"

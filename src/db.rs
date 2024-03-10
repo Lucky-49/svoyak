@@ -158,7 +158,7 @@ pub struct PlayerStatistic {
     pub player_total_score: i64,
 }
 
-//получение статиски игрока
+//получение статистики игрока
 pub async fn get_player_statistic(player_id: i64) -> Result<PlayerStatistic> {
     let conn = establish_connection();
 
@@ -196,7 +196,7 @@ pub async fn get_player_profile() -> Result<Vec<PlayerProfile>> {
     )?;
 
     let player_iter = stmt.query_map(params![], |row| {
-        let player_id: i64 = row.get(0)?; //Получаем значение  из базы данных
+        let player_id: i64 = row.get(0)?; //Получаем значение из базы данных
 
         let chat_id_i64: i64 = row.get(1)?; // Получаем значение chat_id из базы данных как i64
         let chat_id = ChatId(i64::from(chat_id_i64));
@@ -527,7 +527,7 @@ pub fn reg_game_player(player_id: i64, game_id: i64) -> Result<(), ()> {
     println!("Total number of records for player_id: {}", count);
 
     if count < 16 {
-        //проверяем не зарегестрирован ли player_id зрителем
+        //проверяем не зарегистрирован ли player_id зрителем
         let spectator_id: bool = connection
             .query_row(
                 &format!(
@@ -539,9 +539,9 @@ pub fn reg_game_player(player_id: i64, game_id: i64) -> Result<(), ()> {
             )
             .expect("не удалось выполнить запрос проверки уникальности reg_game_spectator");
 
-        //если player_id уже зарегестрирован зрителем
+        //если player_id уже зарегистрирован зрителем
         if !spectator_id {
-            println!("player_id уже зарегестрирован зрителем");
+            println!("player_id уже зарегистрирован зрителем");
 
             // Подключение к таблице game_{}
             let delete_result = connection.execute(
@@ -564,7 +564,7 @@ pub fn reg_game_player(player_id: i64, game_id: i64) -> Result<(), ()> {
             }
         }
 
-        //проверяем не зарегестрирован ли player_id в резерв
+        //проверяем не зарегистрирован ли player_id в резерв
         let reserve_player_id: bool = connection
             .query_row(
                 &format!(
@@ -576,9 +576,9 @@ pub fn reg_game_player(player_id: i64, game_id: i64) -> Result<(), ()> {
             )
             .expect("не удалось выполнить запрос проверки уникальности reg_game_reserve_player_id");
 
-        //если player_id уже зарегестрирован в резерв
+        //если player_id уже зарегистрирован в резерв
         if !reserve_player_id {
-            println!("player_id уже зарегестрирован в резерв");
+            println!("player_id уже зарегистрирован в резерв");
 
             // Подключение к таблице game_{}
             let delete_result = connection.execute(
@@ -689,9 +689,9 @@ pub fn reg_game_spectator(player_id: i64, game_id: i64) -> Result<(), &'static s
             )
             .expect("не удалось выполнить запрос проверки уникальности reg_game_spectator");
 
-        //если player_id уже зарегестрирован зрителем
+        //если player_id уже зарегистрирован зрителем
         if !player_id_unique {
-            println!("player_id уже зарегестрирован зрителем");
+            println!("player_id уже зарегистрирован зрителем");
             return Err("Зритель уже зарегистрирован");
         }
 
@@ -722,7 +722,7 @@ pub async fn delete_game_player(game_id: i64, player_id: i64) {
         .expect("удалить регистрацию на игру player_id не удалось");
 
     // отправить сообщение всем reserve_player_id - освободилось место в игре
-    spawn_blocking(move || {
+   let _ = spawn_blocking(move || {
         tokio::runtime::Runtime::new()
             .unwrap()
             .block_on(free_space_game_bot(game_id))
@@ -740,7 +740,7 @@ struct UpdatePlayerStatistic {
     player_total_score: i64,
 }
 
-//обнавляем статистику игроков в таблице players
+//обновляем статистику игроков в таблице players
 pub fn update_statistic_players(game_id: i64) {
     println!("запуск update_statistic_players");
 
@@ -1074,7 +1074,7 @@ pub async fn rec_real_player_data_to_db(player_id: i64) {
     }
 }
 
-//структура результатов сыграной игры
+//структура результатов сыгранной игры
 pub struct PlayerResultGame {
     pub player_id: i64,
     pub positive_count: i32,
@@ -1082,7 +1082,7 @@ pub struct PlayerResultGame {
     pub sum_score: i32,
 }
 
-//получение результатов сыграной игры из таблицы game_{}
+//получение результатов сыгранной игры из таблицы game_{}
 pub fn getting_game_results(game_id: i64) {
     println!("запуск getting_game_results");
 
@@ -1105,7 +1105,7 @@ pub fn getting_game_results(game_id: i64) {
         .query_map(params![], |row| row.get::<usize, i64>(0))
         .expect("не удалось выполнить sql-запрос в getting_game_results");
 
-    // Шаг 2: Для каждого player_id определяем статистику по сыграной игре из таблицы game_{game_id}
+    // Шаг 2: Для каждого player_id определяем статистику по сыгранной игре из таблицы game_{game_id}
     for player_id in player_id_iter {
         match player_id {
             Ok(id) => {

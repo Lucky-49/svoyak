@@ -24,7 +24,7 @@ pub struct QuestionsPacsResponse {
     questionspacs: Vec<QuestionsPacResponse>,
 }
 
-// Функция (отображение на странице с пакетами) для запроса названий готовых пакетов из базы данных (stage=1) и не превязанных к играм (в register_games package_id !=1)
+// Функция (отображение на странице с пакетами) для запроса названий готовых пакетов из базы данных (stage=1) и не привязанных к играм (в register_games package_id !=1)
 fn query_questions_pacs_done_not_game(conn: &Connection, user_id: i64, game_type: String) -> QuestionsPacsResponse {
     // Здесь выполните SQL-запрос, чтобы получить все данные о пакетах вопросов
     // и верните их в виде вектора структур QuestionsPacResponse
@@ -291,7 +291,7 @@ pub fn get_all_questions(cookies: &CookieJar, questions_pac_id: i64) -> Json<Que
             let all_questions = query_questions(&conn, questions_pac_id);
             Json(all_questions)
         }
-        Err(_) => Json(QuestionsResponse { questions: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки    }
+        Err(_) => Json(QuestionsResponse { questions: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки
     }
 }
 
@@ -496,7 +496,7 @@ pub fn questions_count(questions_pac_id: i64) -> Json<i32> {
     Json(count)
 }
 
-//функция проверки состояния срвера (коннект/дисконнект)
+//функция проверки состояния сервера (коннект/дисконнект)
 #[get("/events")]
 pub async fn events(queue: &State<Sender<Message>>, mut end: Shutdown) -> EventStream![] {
     let mut rx = queue.subscribe();
@@ -541,7 +541,7 @@ pub fn get_all_questions_players(cookies: &CookieJar) -> Json<PlayersQuestionsRe
             let all_questions_players = query_questions_players(&conn, user_id);
             Json(all_questions_players)
         }
-        Err(_) => Json(PlayersQuestionsResponse { questions: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки    }
+        Err(_) => Json(PlayersQuestionsResponse { questions: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки
     }
 }
 
@@ -549,7 +549,7 @@ pub fn get_all_questions_players(cookies: &CookieJar) -> Json<PlayersQuestionsRe
 fn query_questions_players(conn: &Connection, user_id: i64) -> PlayersQuestionsResponse {
     // Здесь выполните SQL-запрос, чтобы получить все данные о вопросах
     // и верните их в виде вектора структур QuestionsResponse
-    // Выполните SQL-запрос с использованием JOIN для объединения данных из обеих таблиц
+    // Выполнит SQL-запрос с использованием JOIN для объединения данных из обеих таблиц
     let sql_query = format!(
         "SELECT q.player_id, p.player_real_last_name, p.player_real_first_name, p.player_real_patronymic, q.player_topic_five_questions, q.player_question, q.player_answer_question, q.id, q.package_id
         FROM questions_players AS q
@@ -700,7 +700,7 @@ fn query_announce_game(conn: &Connection, user_id: i64) -> GamesResponse {
     }
 }
 
-//количество игроков зарегестрированных в городе
+//количество игроков зарегистрированных в городе
 #[get("/players_count")]
 pub fn players_count(cookies: &CookieJar) -> Result<Json<i32>, Status> {
     match get_user_id_from_cookies(cookies) {

@@ -384,20 +384,11 @@ pub fn register_user(
     }
 }
 
-#[derive(FromForm, Debug)]
-pub struct GameType {
-    game_type: String,
-}
 
-#[derive(Serialize)]
-pub struct GameTypeContext {
-    header: String,
-    game_type: String,
-}
 
 //переход на страницу подготовки пакетов вопросов
-#[post("/prepare_questions_pac", data = "<form_data>")]
-pub fn prepare_questions_pac(cookies: &CookieJar, form_data: Form<GameType>) -> Template {
+#[post("/prepare_questions_pac")]
+pub fn prepare_questions_pac(cookies: &CookieJar) -> Template {
     // Проверка, прошел ли пользователь аутентификацию
     match get_user_id_from_cookies(cookies) {
         Ok(user_id) => {
@@ -405,15 +396,11 @@ pub fn prepare_questions_pac(cookies: &CookieJar, form_data: Form<GameType>) -> 
                 //определение роли юзера
                 Ok(role) => match role.as_str() {
                     "organiser" => {
-                        let form_data = form_data.into_inner();
-
-                        let game_type = form_data.game_type;
 
                         let city = get_organiser_city(user_id);
 
-                        let context = GameTypeContext {
-                            header: city,
-                            game_type,
+                        let context = Context {
+                            header: city
                         };
 
                         Template::render("prepare_questions_pac", &context)

@@ -1,0 +1,11 @@
+/target/
+
+/logs/
+
+token.rs
+
+.env
+
+Dockerfile
+
+Users.db

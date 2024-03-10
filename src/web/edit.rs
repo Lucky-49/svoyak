@@ -9,8 +9,8 @@ extern crate rand;
 use crate::web::rec_question::PackageNameContext;
 use crate::web::users::{get_user_id_from_cookies, get_user_role, Context};
 
-#[post("/view_pac/<questions_pac_id>/<game_type>")]
-pub fn view_pac(cookies: &CookieJar, questions_pac_id: i64, game_type: String) -> Result<Template, Template> {
+#[post("/view_pac/<questions_pac_id>")]
+pub fn view_pac(cookies: &CookieJar, questions_pac_id: i64) -> Result<Template, Template> {
     match get_user_id_from_cookies(cookies) {
         Ok(user_id) => {
             match get_user_role(user_id) {

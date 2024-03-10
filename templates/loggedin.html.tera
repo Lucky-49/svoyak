@@ -14,16 +14,9 @@
 
     <h1 class="uppercase-text">{{ header }}</h1> <!-- Вставляем переменную header -->
 
-    <!-- Кнопка "Подготовить solo игру" -->
+    <!-- Кнопка "Подготовить игру" -->
     <form method="post" action="/prepare_questions_pac">
-        <input type="hidden" name="game_type" value="solo">
-        <button class="prepare-solo-game-button" type="submit">Подготовить solo игру</button>
-    </form>
-
-    <!-- Кнопка "Подготовить team игру" -->
-    <form method="post" action="/prepare_questions_pac">
-        <input type="hidden" name="game_type" value="team">
-        <button class="prepare-team-game-button" type="submit">Подготовить team игру</button>
+        <button class="prepare-solo-game-button" type="submit">Подготовить игру</button>
     </form>
 
     <!-- Кнопка "Провести игру" -->

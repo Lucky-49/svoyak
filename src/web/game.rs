@@ -60,7 +60,7 @@ pub async fn start_game(cookies: &CookieJar<'_>, game_id: i64, questions_pac_id:
                     _ => {
                         // Пользователь не аутентифицирован, перейдите на главную страницу
                         let context = Context {
-                            header: "Только оганизатор может проводить игры".to_string(),
+                            header: "Только организатор может проводить игры".to_string(),
                         };
                         Template::render("index", &context)
                     }
@@ -574,7 +574,7 @@ fn round_group_players(cookies: &CookieJar<'_>, game_id: i64, questions_pac_id: 
             .expect("Ошибка вставки данных в таблицу");
         }
 
-        // Вставляем пустые ячеки, в которые позже будут внесены финалисты игры
+        // Вставляем пустые ячейки, в которые позже будут внесены финалисты игры
         let insert_query = format!(
             "INSERT INTO schema_game_{} (tour, round, player_id_1, player_id_2, player_id_3, player_id_4) VALUES (?,?,?,?,?,?)",
             game_id
@@ -1136,7 +1136,7 @@ fn result_answer_unique(
     question_id: i64,
     price_question: i32,
 ) -> Result<(), Error> {
-    let abs_price_question = price_question.abs(); //необходимо вести сравнение по модулю числа иначе при проверке уникальности первого вопроса игры возникает ошибка с которой я не знаю как боротья))
+    let abs_price_question = price_question.abs(); //необходимо вести сравнение по модулю числа иначе при проверке уникальности первого вопроса игры возникает ошибка с которой я не знаю как бороться
 
     let is_result_unique: bool = conn
         .query_row(&format!("SELECT COUNT (*)
@@ -1379,7 +1379,7 @@ pub async fn players_dont_know_answer(
                             update_stage_schema_game(game_id, question_id); //запускаем обновление stage в схеме игры
 
                             changing_four_players(&conn, user_id, game_id, questions_pac_id)
-                            //запускае проверку смены раунда
+                            //запускает проверку смены раунда
                         }
                     }
                     _ => {
@@ -1534,7 +1534,7 @@ fn changing_round(
 
         let tour: i8 = stmt
             .query_row(params![], |row| row.get(0))
-            .expect("номер тура не ныйден");
+            .expect("номер тура не найден");
 
         let mut stmt = conn
             .prepare(&format!(
@@ -1619,7 +1619,7 @@ fn result_tour(
 
         let round: i8 = stmt
             .query_row(params![], |row| row.get(0))
-            .expect("номер раунда не ныйден");
+            .expect("номер раунда не найден");
 
         let city = get_organiser_city(user_id);
 
@@ -1664,7 +1664,7 @@ fn result_tour(
 
             let tour: i8 = stmt
                 .query_row(params![], |row| row.get(0))
-                .expect("номер тура не ныйден");
+                .expect("номер тура не найден");
 
             let mut stmt = conn
                 .prepare(&format!(
@@ -1679,7 +1679,7 @@ fn result_tour(
 
             let round: i8 = stmt
                 .query_row(params![], |row| row.get(0))
-                .expect("номер раунда не ныйден");
+                .expect("номер раунда не найден");
 
             let city = get_organiser_city(user_id);
 
@@ -1743,7 +1743,7 @@ pub async fn get_players_round_result(
 
             Json(all_players_game)
         }
-        Err(_) => Json(PlayersGameDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки    }
+        Err(_) => Json(PlayersGameDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки
     }
 }
 
@@ -2040,7 +2040,7 @@ pub async fn get_tour_result(
 
             Json(all_players_qualifying_rounds_game)
         }
-        Err(_) => Json(PlayersQualifyingGameDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки    }
+        Err(_) => Json(PlayersQualifyingGameDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки
     }
 }
 
@@ -2050,7 +2050,7 @@ fn query_players_qualifying_round_result(
     game_id: i64,
 ) -> PlayersQualifyingGameDataResponse {
     // results_tour(&conn, game_id);
-    // Запрос для сумм баллов по каждому player_id (подключаемся к game_{}, находим уникальные player_id, суммирум score
+    // Запрос для сумм баллов по каждому player_id (подключаемся к game_{}, находим уникальные player_id, суммируем score
     //каждого игрока, подключаемся к таблице players, по player_id находим ФИО каждого игрока, сортируем в порядке возрастания score
     let sql_query = format!(
         "SELECT g.player_id, p.player_real_first_name, p.player_real_patronymic, p.player_real_last_name,
@@ -2291,7 +2291,7 @@ pub fn get_spectator_list(cookies: &CookieJar<'_>, game_id: i64) -> Json<Players
 
             Json(all_players_registration_game)
         }
-        Err(_) => Json(PlayersListDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки    }
+        Err(_) => Json(PlayersListDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки
     }
 }
 
@@ -2355,7 +2355,7 @@ pub fn get_reserve_player_list(
 
             Json(all_players_registration_game)
         }
-        Err(_) => Json(PlayersListDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки    }
+        Err(_) => Json(PlayersListDataResponse { players: vec![] }), // Вернуть объект QuestionsResponse с пустым массивом в случае ошибки
     }
 }
 
