@@ -25,7 +25,7 @@ pub struct QuestionsPacsResponse {
 }
 
 // Функция (отображение на странице с пакетами) для запроса названий готовых пакетов из базы данных (stage=1) и не привязанных к играм (в register_games package_id !=1)
-fn query_questions_pacs_done_not_game(conn: &Connection, user_id: i64, game_type: String) -> QuestionsPacsResponse {
+fn query_questions_pacs_done_not_game(conn: &Connection, user_id: i64) -> QuestionsPacsResponse {
     // Здесь выполните SQL-запрос, чтобы получить все данные о пакетах вопросов
     // и верните их в виде вектора структур QuestionsPacResponse
     let mut stmt = conn
@@ -33,7 +33,7 @@ fn query_questions_pacs_done_not_game(conn: &Connection, user_id: i64, game_type
             //AND stage=1 - выбрать записи у которых в столбце stage стоит 1
             "SELECT id, package_name
                  FROM register_questions_pac
-                 WHERE user_id = ? AND stage = 1 AND type = ?
+                 WHERE user_id = ? AND stage = 1
                  AND NOT EXISTS (
                                 SELECT 1
                                 FROM register_games rg
@@ -58,7 +58,7 @@ fn query_questions_pacs_done_not_game(conn: &Connection, user_id: i64, game_type
     таблице games */
 
     let pacs_data_iter = stmt
-        .query_map(params![user_id, game_type, user_id, user_id, user_id], |row| {
+        .query_map(params![user_id, user_id, user_id, user_id], |row| {
             Ok(QuestionsPacResponse {
                 id: row.get(0)?,
                 package_name: row.get(1)?,
@@ -71,12 +71,12 @@ fn query_questions_pacs_done_not_game(conn: &Connection, user_id: i64, game_type
     }
 }
 
-#[get("/pacs_data_done_not_game/<game_type>")]
-pub fn get_pacs_done_not_game(cookies: &CookieJar, game_type: String) -> Json<QuestionsPacsResponse> {
+#[get("/pacs_data_done_not_game")]
+pub fn get_pacs_done_not_game(cookies: &CookieJar) -> Json<QuestionsPacsResponse> {
     match get_user_id_from_cookies(cookies) {
         Ok(user_id) => {
             let conn = establish_connection();
-            let all_pacs_done = query_questions_pacs_done_not_game(&conn, user_id, game_type);
+            let all_pacs_done = query_questions_pacs_done_not_game(&conn, user_id);
             Json(all_pacs_done)
         }
         Err(_) => Json(QuestionsPacsResponse {
@@ -144,12 +144,12 @@ pub fn get_all_pacs_done(cookies: &CookieJar) -> Json<QuestionsPacsResponse> {
     }
 }
 
-#[get("/pacs_data_not_done/<game_type>")]
-pub fn get_pacs_not_done(cookies: &CookieJar, game_type: String) -> Json<QuestionsPacsResponse> {
+#[get("/pacs_data_not_done")]
+pub fn get_pacs_not_done(cookies: &CookieJar) -> Json<QuestionsPacsResponse> {
     match get_user_id_from_cookies(cookies) {
         Ok(user_id) => {
             let conn = establish_connection();
-            let all_pacs_not_done = query_questions_pacs_not_done(&conn, user_id, game_type);
+            let all_pacs_not_done = query_questions_pacs_not_done(&conn, user_id);
             Json(all_pacs_not_done)
         }
         Err(_) => Json(QuestionsPacsResponse {
@@ -159,15 +159,15 @@ pub fn get_pacs_not_done(cookies: &CookieJar, game_type: String) -> Json<Questio
 }
 
 // Функция для запроса названий не готовых пакетов из базы данных (stage!=0)
-fn query_questions_pacs_not_done(conn: &Connection, user_id: i64, game_type: String) -> QuestionsPacsResponse {
+fn query_questions_pacs_not_done(conn: &Connection, user_id: i64) -> QuestionsPacsResponse {
     // Здесь выполните SQL-запрос, чтобы получить все данные о пакетах вопросов
     // и верните их в виде вектора структур QuestionsPacResponse
     let mut stmt = conn
-        .prepare("SELECT id, package_name FROM register_questions_pac WHERE user_id = ? AND NOT (stage = 1 OR stage IS NULL) AND type = ?")
+        .prepare("SELECT id, package_name FROM register_questions_pac WHERE user_id = ? AND NOT (stage = 1 OR stage IS NULL)")
         .expect("Failed to prepare query");
 
     let pacs_data_iter = stmt
-        .query_map(params![user_id, game_type], |row| {
+        .query_map(params![user_id], |row| {
             Ok(QuestionsPacResponse {
                 id: row.get(0)?,
                 package_name: row.get(1)?,
